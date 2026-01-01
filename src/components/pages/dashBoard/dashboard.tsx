@@ -37,6 +37,8 @@ import {
   CodeOutlined,
   PlusOutlined,
   LinkOutlined,
+  TrophyOutlined,
+  BookOutlined,
 } from "@ant-design/icons";
 import ConnectPlatformModal from "./ConnectPlatformModal";
 
@@ -349,6 +351,10 @@ const Dashboard: React.FC = () => {
               icon: <BarChartOutlined />,
               label: "Analytics",
             },
+            { key: "youtube", icon: <YoutubeOutlined />, label: "YouTube" },
+            { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
+            { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
+            { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
             { key: "profile", icon: <UserOutlined />, label: "Profile" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}

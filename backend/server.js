@@ -224,6 +224,52 @@ app.post("/api/ai/coursera-guide", async (req, res) => {
   }
 });
 
+app.post("/api/ai/coursera-analysis", async (req, res) => {
+  try {
+    const { stats, username } = req.body;
+    if (!stats) return res.status(400).json({ error: "User stats required" });
+
+    const prompt = `
+      Analyze the Coursera learning profile for user "${username}".
+      Stats: ${JSON.stringify(stats)}
+      
+      Identify their top 3 strengths and top 3 weaknesses/skill gaps. 
+      Also, recommend exactly 3 specific Coursera courses (with titles) that would help them advance their career based on their current progress.
+      
+      Return the analysis in strict JSON format:
+      {
+        "strengths": [
+          {"topic": "Skill/Domain", "reason": "Why it's a strength"},
+          ...
+        ],
+        "weaknesses": [
+          {"topic": "Skill/Domain", "reason": "Why it's a gap and how it impacts them"},
+          ...
+        ],
+        "recommendations": [
+          {"title": "Course Title", "reason": "Why this specific course is recommended"},
+          ...
+        ],
+        "summary": "A brief encouraging summary of their Coursera journey."
+      }
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a professional career advisor and Coursera learning path expert." },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    res.json(JSON.parse(completion.choices[0].message.content));
+  } catch (error) {
+    console.error("AI Coursera Analysis Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Analysis failed", details: error.message });
+  }
+});
+
 app.post("/api/ai/skill-resources", async (req, res) => {
   try {
     const { skillName } = req.body;

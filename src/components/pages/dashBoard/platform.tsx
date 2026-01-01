@@ -16,10 +16,6 @@ import {
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import LeetCode from "./leetcode";
-import HackerRankStats from "./hackerRank";
-import CourseraStats from "./coursera";
-
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
@@ -84,6 +80,18 @@ const Dashboard: React.FC = () => {
   const handlePlatformClick = (platform: any) => {
     if (platform.key === "youtube") {
       navigate("/youtube");
+      return;
+    }
+    if (platform.key === "leetcode") {
+      navigate("/leetcode");
+      return;
+    }
+    if (platform.key === "hackerrank") {
+      navigate("/hackerrank");
+      return;
+    }
+    if (platform.key === "coursera") {
+      navigate("/coursera");
       return;
     }
     setSelectedPlatform(platform);
@@ -214,13 +222,7 @@ const Dashboard: React.FC = () => {
           width={650}
           centered
         >
-          {selectedPlatform?.key === "leetcode" ? (
-            <LeetCode />
-          ) : selectedPlatform?.key === "hackerrank" ? (
-            <HackerRankStats />
-          ) : selectedPlatform?.key === "coursera" ? (
-            <CourseraStats />
-          ) : selectedPlatform?.key === "udemy" ? (
+          {selectedPlatform?.key === "udemy" ? (
               // GENERIC PLATFORM CONNECT
               <Form layout="vertical" form={form} onFinish={(values) => {
                  // Save the platform username

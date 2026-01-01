@@ -8,6 +8,8 @@ import PrivateRoute from "./components/pages/dashBoard/privateRoute";
 import SkillsPage from "./components/pages/skills/skillsPage";
 import Youtube from "./components/pages/dashBoard/youTube";
 import LeetCode from "./components/pages/dashBoard/leetcode";
+import HackerRank from "./components/pages/dashBoard/hackerRank";
+import Coursera from "./components/pages/dashBoard/coursera";
 import ProfilePage from "./components/pages/profile/ProfilePage";
 import { App as AntdApp } from "antd"; 
 function App() {
@@ -30,6 +32,8 @@ function App() {
         <Route path="/skills" element={<SkillsPage />} />
         <Route path="/youtube" element={<Youtube />} />
         <Route path="/leetcode" element={<LeetCode />} />
+        <Route path="/hackerrank" element={<HackerRank />} />
+        <Route path="/coursera" element={<Coursera />} />
         <Route path="/profile" element={<ProfilePage />} />
 
 

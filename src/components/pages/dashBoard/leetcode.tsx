@@ -7,11 +7,30 @@ import {
   Statistic,
   Row,
   Col,
-  message
+  message,
+  Layout,
+  Menu,
+  Avatar,
+  Space
 } from "antd";
-import { RobotOutlined } from "@ant-design/icons";
+import { 
+  RobotOutlined, 
+  DashboardOutlined, 
+  AppstoreOutlined, 
+  CloudSyncOutlined, 
+  BarChartOutlined, 
+  SettingOutlined, 
+  LogoutOutlined, 
+  BellOutlined,
+  CodeOutlined,
+  YoutubeOutlined,
+  TrophyOutlined,
+  BookOutlined
+} from "@ant-design/icons";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
+const { Header, Sider, Content } = Layout;
 const { Text, Title } = Typography;
 
 interface AIMessage {
@@ -20,6 +39,7 @@ interface AIMessage {
 }
 
 const LeetCode: React.FC = () => {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<any>(null);
@@ -135,129 +155,177 @@ const LeetCode: React.FC = () => {
   };
 
   return (
-    <div>
-      <Title level={4}>LeetCode Skill Tracker</Title>
-
-      <div style={{ marginBottom: 20 }}>
-        <Input
-          placeholder="Enter LeetCode username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          onPressEnter={handleSubmit}
-          style={{ width: 300, marginRight: 10 }}
+    <Layout style={{ minHeight: "100vh" }}>
+      <Sider width={220} theme="dark">
+        <div style={{ color: "white", padding: "16px", fontSize: 20, textAlign: "center", fontWeight: 600 }}>
+          SkillTracker
+        </div>
+        <Menu
+          theme="dark"
+          mode="inline"
+          defaultSelectedKeys={["leetcode"]}
+          onClick={(item: any) => navigate("/" + item.key)}
+          items={[
+            { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
+            { key: "skills", icon: <AppstoreOutlined />, label: "Skills" },
+            { key: "platforms", icon: <CloudSyncOutlined />, label: "Platforms" },
+            { key: "analytics", icon: <BarChartOutlined />, label: "Analytics" },
+            { key: "youtube", icon: <YoutubeOutlined />, label: "YouTube" },
+            { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
+            { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
+            { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+          ]}
         />
-        <Button type="primary" onClick={handleSubmit} loading={loading}>
-          Track / Update
-        </Button>
-      </div>
+      </Sider>
 
-      {error && <Text type="danger">{error}</Text>}
+      <Layout>
+        <Header style={{ background: "#fff", padding: "0 24px", display: "flex", justifyContent: "space-between", alignItems: "center", height: 64 }}>
+          <Title level={4} style={{ margin: 0 }}>LeetCode Performance Tracker</Title>
+          <Space size={20}>
+            <BellOutlined style={{ fontSize: 22 }} />
+            <Avatar src="https://i.pravatar.cc/150?img=8" />
+            <Button icon={<LogoutOutlined />} type="text" onClick={() => { localStorage.removeItem('token'); navigate('/'); }}>Logout</Button>
+          </Space>
+        </Header>
 
-      {stats && stats.submitStats && (
-        <>
-          <Card
-            title={`Stats for ${stats.username || username}`}
-            extra={
-              <a
-                href={`https://leetcode.com/${stats.username || username}/`}
-                target="_blank"
-                rel="noreferrer"
-              >
-                View Profile
-              </a>
-            }
-          >
-            <Row gutter={16}>
-              {stats.submitStats.acSubmissionNum.map((item: any) => (
-                <Col span={8} key={item.difficulty}>
-                  <Statistic
-                    title={item.difficulty}
-                    value={item.count}
-                    suffix={`/ ${item.submissions}`}
-                  />
-                </Col>
-              ))}
-            </Row>
-          </Card>
+        <Content style={{ margin: "24px" }}>
+            <div style={{ background: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+                <Title level={4}>LeetCode Skill Tracker</Title>
 
-          {/* AI CHAT */}
-          <Card 
-            style={{ marginTop: 40, borderRadius: '16px', background: '#f9f9f9', border: '1px solid #eee' }}
-            title={<span><RobotOutlined /> LeetCode AI Mentor</span>}
-          >
-            <div
-              style={{
-                height: 250,
-                overflowY: "auto",
-                padding: '16px',
-                background: '#fff',
-                borderRadius: '12px',
-                marginBottom: 20,
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
-              }}
-            >
-              {aiMessages.length === 0 && (
-                <div style={{ textAlign: 'center', color: '#bfbfbf', marginTop: '80px' }}>
-                  <RobotOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
-                  <p>Ask me anything about your LeetCode progress!</p>
+                <div style={{ marginBottom: 20 }}>
+                    <Input
+                    placeholder="Enter LeetCode username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    onPressEnter={handleSubmit}
+                    style={{ width: 300, marginRight: 10, borderRadius: '8px' }}
+                    />
+                    <Button type="primary" onClick={handleSubmit} loading={loading} style={{ borderRadius: '8px' }}>
+                    Track / Update
+                    </Button>
                 </div>
-              )}
-              {aiMessages.map((msg, index) => (
-                <div
-                  key={index}
-                  style={{
-                    marginBottom: 16,
-                    display: "flex",
-                    justifyContent:
-                      msg.role === "user" ? "flex-end" : "flex-start"
-                  }}
-                >
-                  <div
-                    style={{
-                      maxWidth: "80%",
-                      padding: "12px 16px",
-                      borderRadius: msg.role === "user" ? "18px 18px 2px 18px" : "18px 18px 18px 2px",
-                      color: msg.role === "user" ? "#fff" : "#333",
-                      background:
-                        msg.role === "user" ? "#2f54eb" : "#f1f1f1",
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-                      whiteSpace: "pre-wrap",
-                      fontSize: 14,
-                      lineHeight: 1.5
-                    }}
-                  >
-                    <Text strong style={{ color: msg.role === "user" ? "#fff" : "#2f54eb", display: 'block', marginBottom: '4px' }}>
-                      {msg.role === "user" ? "You" : "LeetCode AI"}
-                    </Text>
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-              <div ref={chatEndRef} />
-            </div>
 
-            <div style={{ display: "flex", gap: '10px' }}>
-              <Input
-                value={aiInput}
-                onChange={(e) => setAiInput(e.target.value)}
-                placeholder="Ask like: What topics should I focus on?"
-                style={{ flex: 1, borderRadius: '20px', padding: '10px 20px' }}
-                disabled={aiLoading}
-                onPressEnter={askLeetCodeAI}
-              />
-              <Button
-                type="primary"
-                shape="circle"
-                icon={<RobotOutlined />}
-                size="large"
-                loading={aiLoading}
-                onClick={askLeetCodeAI}
-              />
+                {error && <div style={{ marginBottom: 16 }}><Text type="danger">{error}</Text></div>}
+
+                {stats && stats.submitStats ? (
+                    <>
+                    <Card
+                        title={`Stats for ${stats.username || username}`}
+                        style={{ borderRadius: '12px', border: '1px solid #f0f0f0' }}
+                        extra={
+                        <a
+                            href={`https://leetcode.com/${stats.username || username}/`}
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            View Profile
+                        </a>
+                        }
+                    >
+                        <Row gutter={[24, 24]}>
+                        {stats.submitStats.acSubmissionNum.map((item: any) => (
+                            <Col xs={24} sm={8} key={item.difficulty}>
+                            <Card bordered={false} style={{ background: '#f8fafc', borderRadius: '8px' }}>
+                                <Statistic
+                                    title={item.difficulty}
+                                    value={item.count}
+                                    precision={0}
+                                    valueStyle={{ color: item.difficulty === 'Easy' ? '#52c41a' : item.difficulty === 'Medium' ? '#faad14' : item.difficulty === 'Hard' ? '#f5222d' : '#1890ff' }}
+                                    suffix={`/ ${item.submissions}`}
+                                />
+                            </Card>
+                            </Col>
+                        ))}
+                        </Row>
+                    </Card>
+
+                    {/* AI CHAT */}
+                    <Card 
+                        style={{ marginTop: 40, borderRadius: '16px', background: '#f9f9f9', border: '1px solid #eee' }}
+                        title={<span><RobotOutlined /> LeetCode AI Mentor</span>}
+                    >
+                        <div
+                        style={{
+                            height: 300,
+                            overflowY: "auto",
+                            padding: '16px',
+                            background: '#fff',
+                            borderRadius: '12px',
+                            marginBottom: 20,
+                            boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                        }}
+                        >
+                        {aiMessages.length === 0 && (
+                            <div style={{ textAlign: 'center', color: '#bfbfbf', marginTop: '100px' }}>
+                            <RobotOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                            <p>Ask me anything about your LeetCode progress!</p>
+                            </div>
+                        )}
+                        {aiMessages.map((msg, index) => (
+                            <div
+                            key={index}
+                            style={{
+                                marginBottom: 16,
+                                display: "flex",
+                                justifyContent:
+                                msg.role === "user" ? "flex-end" : "flex-start"
+                            }}
+                            >
+                            <div
+                                style={{
+                                maxWidth: "80%",
+                                padding: "12px 16px",
+                                borderRadius: msg.role === "user" ? "18px 18px 2px 18px" : "18px 18px 18px 2px",
+                                color: msg.role === "user" ? "#fff" : "#333",
+                                background:
+                                    msg.role === "user" ? "#1890ff" : "#f1f1f1",
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+                                whiteSpace: "pre-wrap",
+                                fontSize: 14,
+                                lineHeight: 1.5
+                            }}
+                            >
+                                <Text strong style={{ color: msg.role === "user" ? "#fff" : "#1890ff", display: 'block', marginBottom: '4px' }}>
+                                {msg.role === "user" ? "You" : "LeetCode AI"}
+                                </Text>
+                                {msg.text}
+                            </div>
+                            </div>
+                        ))}
+                        <div ref={chatEndRef} />
+                        </div>
+
+                        <div style={{ display: "flex", gap: '10px' }}>
+                        <Input
+                            value={aiInput}
+                            onChange={(e) => setAiInput(e.target.value)}
+                            placeholder="Ask like: What topics should I focus on?"
+                            style={{ flex: 1, borderRadius: '20px', padding: '10px 20px' }}
+                            disabled={aiLoading}
+                            onPressEnter={askLeetCodeAI}
+                        />
+                        <Button
+                            type="primary"
+                            shape="circle"
+                            icon={<RobotOutlined />}
+                            size="large"
+                            loading={aiLoading}
+                            onClick={askLeetCodeAI}
+                        />
+                        </div>
+                    </Card>
+                    </>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '40px', color: '#8c8c8c' }}>
+                        <CodeOutlined style={{ fontSize: '64px', marginBottom: '20px', opacity: 0.2 }} />
+                        <p>Enter your username above to see your stats and AI-powered learning path.</p>
+                    </div>
+                )}
             </div>
-          </Card>
-        </>
-      )}
-    </div>
+        </Content>
+      </Layout>
+    </Layout>
   );
 };
 

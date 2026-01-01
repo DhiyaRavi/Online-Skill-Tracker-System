@@ -25,6 +25,9 @@ import {
   BellOutlined,
   LogoutOutlined,
   RobotOutlined,
+  CodeOutlined,
+  TrophyOutlined,
+  BookOutlined
 } from "@ant-design/icons";
 import YouTube from "react-youtube";
 import { useNavigate } from "react-router-dom";
@@ -288,6 +291,9 @@ const YoutubePage: React.FC = () => {
             { key: "platforms", icon: <CloudSyncOutlined />, label: "Platforms" },
             { key: "analytics", icon: <BarChartOutlined />, label: "Analytics" },
             { key: "youtube", icon: <YoutubeOutlined />, label: "YouTube" },
+            { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
+            { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
+            { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}
         />
