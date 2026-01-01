@@ -1,0 +1,51 @@
+.dashboard-layout {
+    min-height: 100vh;
+  }
+  
+  .logo {
+    height: 60px;
+    margin: 16px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .dashboard-header {
+    background-color: #1890ff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+  }
+  
+  .dashboard-content {
+    margin: 24px 0;
+  }
+  
+  .course-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  .dashboard-layout {
+    min-height: 100vh;
+  }
+  
+  .dashboard-header {
+    background-color: #1890ff;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    color: #fff; /* Ensure text is visible */
+  }
+  
+  .dashboard-content {
+    margin: 24px;
+    padding: 24px;
+    background: #f0f2f5; /* light background for content */
+  }
+  
+  .course-card {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+  
