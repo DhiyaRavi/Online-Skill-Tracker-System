@@ -16,10 +16,11 @@ import fs from "fs";
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 const PORT = process.env.PORT || 5000;
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || "AIzaSyDHY0ItzhiusMH59iy-gtHtYVoGwkGu5Po", // Fallback or strict env
+  apiKey: process.env.OPENAI_API_KEY || GOOGLE_API_KEY, // Fallback or strict env
 });
 
 // Multer Storage
