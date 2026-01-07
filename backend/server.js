@@ -18,7 +18,7 @@ app.use(cors());
 app.use(bodyParser.json());
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || GOOGLE_API_KEY, // Fallback or strict env
 });
@@ -224,6 +224,43 @@ app.post("/api/ai/coursera-guide", async (req, res) => {
   }
 });
 
+app.post("/api/ai/udemy-guide", async (req, res) => {
+  try {
+    const { stats, username, message } = req.body;
+    if (!stats) return res.status(400).json({ error: "User stats required" });
+
+    const userQuery = message || "Analyze my Udemy progress and suggest what to learn next.";
+    const prompt = `
+      You are an expert technical instructor specializing in Udemy courses and skill development.
+      User: "${username}"
+      Stats: ${JSON.stringify(stats)}
+      
+      User Question: "${userQuery}"
+      
+      Provide:
+      1. Analysis of current Udemy learning progress (courses completed, in progress).
+      2. Recommended next courses or skills to master based on their Udemy profile.
+      3. A practical tip for hands-on learning with Udemy projects.
+      
+      Keep it practical, engaging, and encouraging.
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a helpful technical instructor and mentor." },
+        { role: "user", content: prompt },
+      ],
+    });
+
+    const reply = completion.choices[0].message?.content || "No response";
+    res.json({ reply });
+  } catch (error) {
+    console.error("AI Udemy Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Failed to generate response", details: error.message });
+  }
+});
+
 app.post("/api/ai/coursera-analysis", async (req, res) => {
   try {
     const { stats, username } = req.body;
@@ -270,6 +307,54 @@ app.post("/api/ai/coursera-analysis", async (req, res) => {
   }
 });
 
+app.post("/api/ai/udemy-analysis", async (req, res) => {
+  try {
+    const { stats, username } = req.body;
+    if (!stats) return res.status(400).json({ error: "User stats required" });
+
+    const prompt = `
+      Analyze the Udemy learning profile for user "${username}".
+      Stats: ${JSON.stringify(stats)}
+      
+      Identify their top 3 strengths and top 3 weaknesses/skill gaps. 
+      Also, recommend exactly 3 specific Udemy course topics or 
+      search queries that would help them advance their career
+      based on their current progress.
+      
+      Return the analysis in strict JSON format:
+      {
+        "strengths": [
+          {"topic": "Skill/Domain", "reason": "Why it's a strength"},
+          ...
+        ],
+        "weaknesses": [
+          {"topic": "Skill/Domain", "reason": "Why it's a gap and how it impacts them"},
+          ...
+        ],
+        "recommendations": [
+          {"title": "Course/Topic", "reason": "Why this specific topic is recommended"},
+          ...
+        ],
+        "summary": "A brief encouraging summary of their Udemy learning journey."
+      }
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a technical career advisor and Udemy learning expert." },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    res.json(JSON.parse(completion.choices[0].message.content));
+  } catch (error) {
+    console.error("AI Udemy Analysis Error:", error.response?.data || error.message);
+    res.status(500).json({ error: "Analysis failed", details: error.message });
+  }
+});
+
 app.post("/api/ai/skill-resources", async (req, res) => {
   try {
     const { skillName } = req.body;
@@ -295,6 +380,103 @@ app.post("/api/ai/skill-resources", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: "AI failed" });
   }
+});
+
+app.post("/api/ai/generate-quiz", async (req, res) => {
+  try {
+    const { videoTitle } = req.body;
+    if (!videoTitle) return res.status(400).json({ error: "Video title required" });
+
+    const prompt = `
+      Generate a quiz with 5 multiple-choice questions based on the topic: "${videoTitle}".
+      
+      Return the response in this strictly valid JSON format:
+      {
+        "questions": [
+          {
+            "id": 1,
+            "question": "The question text here?",
+            "options": ["Option A", "Option B", "Option C", "Option D"],
+            "correctAnswer": "Option A" 
+          }
+        ]
+      }
+      ensure "correctAnswer" matches exactly one of the strings in "options".
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        { role: "system", content: "You are a teacher creating a quick assessment." },
+        { role: "user", content: prompt },
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    res.json(JSON.parse(completion.choices[0].message.content));
+  } catch (error) {
+    console.error("Quiz Gen Error:", error);
+    res.status(500).json({ error: "Failed to generate quiz" });
+  }
+});
+
+app.post("/api/ai/generate-final-exam", async (req, res) => {
+  try {
+    const { videoTitle } = req.body;
+    // videoTitle here represents the Course Name / Playlist Title
+    
+    const prompt = `
+      Create a Final Certification Exam for the course: "${videoTitle}".
+      Generate 10 Medium-to-Hard difficulty multiple-choice questions.
+      
+      Return JSON:
+      {
+        "questions": [
+          {
+             "id": 1,
+             "question": "Question text...",
+             "options": ["A", "B", "C", "D"],
+             "correctAnswer": "A"
+          }
+        ]
+      }
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [{ role: "system", content: "You are a university examiner." }, { role: "user", content: prompt }],
+      response_format: { type: "json_object" },
+    });
+
+    res.json(JSON.parse(completion.choices[0].message.content));
+  } catch (error) {
+    res.status(500).json({ error: "Failed to generate exam" });
+  }
+});
+
+app.post("/api/user/issue-certificate", async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        const { playlistId, courseName } = req.body;
+        
+        const certId = "CERT-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+        
+        await pool.query(
+            `INSERT INTO user_certificates (user_id, playlist_id, course_name, certificate_id)
+             VALUES ($1, $2, $3, $4)
+             ON CONFLICT (certificate_id) DO NOTHING`,
+             [userId, playlistId, courseName, certId]
+        );
+        
+        res.json({ message: "Certificate Issued", certificateId: certId });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ message: "Error issuing certificate" });
+    }
 });
 
 // PostgreSQL Pool
@@ -372,16 +554,27 @@ const initDB = async () => {
       END $$;
     `);
 
-     await pool.query(`
+      await pool.query(`
       CREATE TABLE IF NOT EXISTS user_video_progress (
         user_id INT,
         video_id VARCHAR(100),
         playlist_id VARCHAR(100),
         progress INT DEFAULT 0,
         completed BOOLEAN DEFAULT FALSE,
+        quiz_mark INT DEFAULT NULL,
         updated_at TIMESTAMP DEFAULT NOW(),
         PRIMARY KEY (user_id, video_id)
       );
+    `);
+    
+    // Migration: Add quiz_mark column if missing
+    await pool.query(`
+      DO $$ 
+      BEGIN 
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_video_progress' AND column_name='quiz_mark') THEN 
+          ALTER TABLE user_video_progress ADD COLUMN quiz_mark INT DEFAULT NULL; 
+        END IF;
+      END $$;
     `);
     
      await pool.query(`
@@ -439,7 +632,8 @@ const initDB = async () => {
         "platforms JSONB DEFAULT '{\"leetcode\": \"\", \"hackerrank\": \"\", \"github\": \"\"}'",
         "preferences JSONB DEFAULT '{\"style\": [], \"difficulty\": \"\", \"daily_time\": 0}'",
         "achievements JSONB DEFAULT '{\"certifications\": [], \"internships\": [], \"hackathons\": []}'",
-        "privacy JSONB DEFAULT '{\"public\": true, \"social\": true, \"stats\": true}'"
+        "privacy JSONB DEFAULT '{\"public\": true, \"social\": true, \"stats\": true}'",
+        "share_token VARCHAR(100) UNIQUE"
       ];
 
       for (const col of addColumns) {
@@ -514,7 +708,7 @@ app.get("/api/youtube/playlist", async (req, res) => {
   try {
     const youtube = google.youtube({
       version: "v3",
-      auth: "AIzaSyDHY0ItzhiusMH59iy-gtHtYVoGwkGu5Po", // Restored Key
+      auth: "AIzaSyBSDZMphiNry3p9-RjtoDdCWTUlj2JxtK4", // Restored Key
     });
 
     const response = await youtube.playlistItems.list({
@@ -628,7 +822,7 @@ const fetchYoutubePlaylist = async (playlistId) => {
      try {
         const youtube = google.youtube({
           version: "v3",
-          auth: "AIzaSyDHY0ItzhiusMH59iy-gtHtYVoGwkGu5Po", // Restored Key
+          auth: process.env.YOUTUBE_API_KEY, // Restored Key
         });
     
         const response = await youtube.playlistItems.list({
@@ -649,6 +843,43 @@ const fetchYoutubePlaylist = async (playlistId) => {
         console.error("YouTube API Error:", error.message);
         return []; // Return empty on fail
       }
+};
+
+const fetchUdemyProfile = async (username) => {
+    try {
+        const url = `https://www.udemy.com/user/${username}/`;
+        const headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        };
+        const response = await axios.get(url, { headers });
+        const $ = cheerio.load(response.data);
+
+        const courses = [];
+        $(".course-card--container--3Y77k").each((i, el) => {
+            const title = $(el).find(".course-card--course-title--2f69H").text().trim();
+            const instructor = $(el).find(".course-card--instructor-list--nH9pI").text().trim();
+            if (title) {
+                courses.push({
+                    title,
+                    instructor,
+                    progress: 0, // Scraper can't see private progress
+                    completed: false
+                });
+            }
+        });
+
+        const name = $(".user-profile-header--user-name--3_m_X").text().trim() || username;
+
+        return { 
+            courses_enrolled: courses.length, 
+            courses_completed: 0, 
+            recent_courses: courses.slice(0, 5),
+            name 
+        };
+    } catch (e) {
+        console.error("Udemy fetch error:", e.message);
+        return null;
+    }
 };
 
 /* ================= CONNECT PLATFORM ================= */
@@ -676,7 +907,19 @@ app.post("/api/platform/connect", async (req, res) => {
             stats = data;
         }
         else if (platform === 'udemy') {
-             stats = { courses_completed: 6, in_progress: 1 };
+            const data = await fetchUdemyProfile(value);
+            if (data) {
+                stats = data;
+            } else {
+                // Return empty but structured if scraper fails or profile is private
+                stats = { 
+                    courses_enrolled: 0, 
+                    courses_completed: 0, 
+                    recent_courses: [],
+                    verified_certificates: [],
+                    is_manual: true // Indicator for frontend
+                };
+            }
         }
         else if (platform === 'coursera') {
              stats = { 
@@ -778,6 +1021,193 @@ app.post("/api/platform/connect", async (req, res) => {
     }
 });
 
+/* ================= SHAREABLE LINK ENDPOINTS ================= */
+app.post("/api/user/generate-share-link", async (req, res) => {
+    console.error("\n=== SHARE LINK REQUEST RECEIVED ===");
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) {
+        console.error("[Share Link] ERROR: No token provided");
+        return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+        console.error("[Share Link] Step 1: Verifying JWT");
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        console.error(`[Share Link] Step 2: User ID extracted: ${userId}`);
+        
+        // Use node's crypto for a simple unique token
+        const shareToken = (await import('crypto')).randomBytes(16).toString('hex');
+        console.error(`[Share Link] Step 3: Generated token: ${shareToken}`);
+
+        // Use UPSERT to insert or update the share_token
+        console.error(`[Share Link] Step 4: Executing UPSERT query...`);
+        const result = await pool.query(`
+            INSERT INTO user_profiles (user_id, share_token) 
+            VALUES ($1, $2)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET share_token = $2
+            RETURNING user_id, share_token
+        `, [userId, shareToken]);
+        
+        console.error(`[Share Link] Step 5: UPSERT completed. Rows affected: ${result.rowCount}`);
+        console.error(`[Share Link] Step 6: Returned data:`, result.rows[0]);
+
+        console.error(`[Share Link] Step 7: Successfully saved token for user ${userId}`);
+        console.error("=== SHARE LINK SUCCESS ===\n");
+        res.json({ shareToken });
+    } catch (err) {
+        console.error("\n=== SHARE LINK ERROR ===");
+        console.error("[Share Link] Error type:", err.name);
+        console.error("[Share Link] Error message:", err.message);
+        console.error("[Share Link] Full error:", err);
+        console.error("=== END ERROR ===\n");
+        res.status(500).json({ message: "Failed to generate share link", error: err.message });
+    }
+});
+
+app.get("/api/public/profile/:token", async (req, res) => {
+    const { token } = req.params;
+    console.log(`[Public Profile] Request for token: ${token}`);
+    if (!token) return res.status(400).json({ message: "Token required" });
+
+    try {
+        // Fetch profile
+        const profRes = await pool.query(
+            "SELECT * FROM user_profiles WHERE share_token=$1",
+            [token]
+        );
+        
+        console.log(`[Public Profile] Found ${profRes.rows.length} profiles with token`);
+        
+        if (profRes.rows.length === 0) {
+            return res.status(404).json({ message: "Profile not found or link expired" });
+        }
+
+        const profile = profRes.rows[0];
+        const userId = profile.user_id;
+        console.log(`[Public Profile] Loading data for user ID: ${userId}`);
+
+        // Fetch platforms
+        const platformsRes = await pool.query(
+            "SELECT platform, username, stats FROM user_platforms WHERE user_id=$1",
+            [userId]
+        );
+
+        // Fetch youtube stats specifically if connected
+        let youtube = { connected: false };
+        const ytPlatform = platformsRes.rows.find(p => p.platform === 'youtube');
+        if (ytPlatform) {
+            const playlistId = ytPlatform.username;
+            const totalRes = await pool.query("SELECT COUNT(*) FROM youtube_videos WHERE user_id=$1 AND playlist_id=$2", [userId, playlistId]);
+            const completedRes = await pool.query("SELECT COUNT(*) FROM user_video_progress WHERE user_id=$1 AND playlist_id=$2 AND completed=TRUE", [userId, playlistId]);
+            const total = parseInt(totalRes.rows[0].count);
+            const completed = parseInt(completedRes.rows[0].count);
+            youtube = {
+                connected: true,
+                total,
+                completed,
+                progress: total > 0 ? Math.round((completed / total) * 100) : 0
+            };
+        }
+
+        // Fetch skills
+        const skillsRes = await pool.query("SELECT * FROM user_skills WHERE user_id=$1", [userId]);
+
+        console.log(`[Public Profile] Successfully loaded profile for user ${userId}`);
+        res.json({
+            profile: {
+                full_name: profile.full_name,
+                job_title: profile.job_title,
+                bio: profile.bio,
+                profile_pic: profile.profile_pic,
+                links: profile.links,
+                experience_level: profile.experience_level,
+                skills: profile.skills,
+                achievements: profile.achievements
+            },
+            platforms: platformsRes.rows,
+            youtube,
+            skills: skillsRes.rows
+        });
+
+    } catch (err) {
+        console.error("[Public Profile] Error:", err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+
+// TEST ENDPOINT - Remove after debugging
+app.get("/api/test/share-link", async (req, res) => {
+    try {
+        // Get first user
+        const userRes = await pool.query('SELECT id FROM users LIMIT 1');
+        if (userRes.rows.length === 0) {
+            return res.json({ error: 'No users in database' });
+        }
+        
+        const userId = userRes.rows[0].id;
+        const shareToken = (await import('crypto')).randomBytes(16).toString('hex');
+        
+        console.log(`[TEST] Generating share link for user ${userId}`);
+        console.log(`[TEST] Token: ${shareToken}`);
+        
+        // Try UPSERT
+        await pool.query(`
+            INSERT INTO user_profiles (user_id, share_token) 
+            VALUES ($1, $2)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET share_token = $2
+        `, [userId, shareToken]);
+        
+        console.log(`[TEST] UPSERT completed`);
+        
+        // Verify
+        const check = await pool.query(
+            'SELECT share_token FROM user_profiles WHERE user_id=$1',
+            [userId]
+        );
+        
+        const publicUrl = `http://localhost:5173/share/${shareToken}`;
+        
+        res.json({
+            success: true,
+            userId,
+            shareToken,
+            savedToken: check.rows[0]?.share_token,
+            tokensMatch: check.rows[0]?.share_token === shareToken,
+            publicUrl,
+            testUrl: `http://localhost:5001/api/public/profile/${shareToken}`
+        });
+    } catch (err) {
+        console.error('[TEST] Error:', err);
+        res.status(500).json({ error: err.message, stack: err.stack });
+    }
+});
+
+app.post("/api/udemy/update-stats", async (req, res) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+        const { stats } = req.body;
+
+        await pool.query(
+            `UPDATE user_platforms 
+             SET stats=$1, last_updated=NOW() 
+             WHERE user_id=$2 AND platform='udemy'`,
+            [JSON.stringify(stats), userId]
+        );
+
+        res.json({ message: "Udemy stats updated successfully" });
+    } catch (err) {
+        console.error("Udemy Update Error:", err);
+        res.status(500).json({ message: "Failed to update Udemy stats" });
+    }
+});
+
 // Alias for /api/user/platforms to /api/platform/connect
 app.post("/api/user/platforms", async (req, res) => {
     // Redirect to connect endpoint
@@ -785,6 +1215,7 @@ app.post("/api/user/platforms", async (req, res) => {
     app._router.handle(req, res);
 });
 
+/* ================= DASHBOARD STATS ================= */
 /* ================= DASHBOARD STATS ================= */
 app.get("/api/dashboard/stats", async (req, res) => {
     const token = req.headers.authorization?.split(" ")[1];
@@ -803,10 +1234,17 @@ app.get("/api/dashboard/stats", async (req, res) => {
          let youtubeTotal = 0;
          let youtubeCompleted = 0;
          
+         // Quiz stats
+         let totalQuizzes = 0;
+         let completedQuizzes = 0;
+         let avgQuizScore = 0;
+         let certificate = null;
+         
          const ytPlatform = platformsRes.rows.find(p => p.platform === 'youtube');
          if (ytPlatform) {
              const playlistId = ytPlatform.username;
              
+             // Video Stats
              const totalRes = await pool.query(
                  "SELECT COUNT(*) FROM youtube_videos WHERE user_id=$1 AND playlist_id=$2",
                  [userId, playlistId]
@@ -822,6 +1260,26 @@ app.get("/api/dashboard/stats", async (req, res) => {
              if (youtubeTotal > 0) {
                  youtubeProgress = Math.round((youtubeCompleted / youtubeTotal) * 100);
              }
+             
+             // Quiz Stats
+             // We count how many videos have a non-null quiz_mark
+             const quizRes = await pool.query(
+                 "SELECT count(*) as count, avg(quiz_mark) as avg_score FROM user_video_progress WHERE user_id=$1 AND playlist_id=$2 AND quiz_mark IS NOT NULL",
+                 [userId, playlistId]
+             );
+             
+             completedQuizzes = parseInt(quizRes.rows[0].count || 0);
+             totalQuizzes = youtubeTotal; // Assuming 1 quiz per video
+             avgQuizScore = parseFloat(quizRes.rows[0].avg_score || 0).toFixed(1);
+             
+             // Check Certificate
+             const certRes = await pool.query(
+                "SELECT * FROM user_certificates WHERE user_id=$1 AND playlist_id=$2",
+                [userId, playlistId]
+             );
+             if (certRes.rows.length > 0) {
+                 certificate = certRes.rows[0];
+             }
          }
 
          const skillsRes = await pool.query("SELECT * FROM user_skills WHERE user_id=$1", [userId]);
@@ -833,7 +1291,13 @@ app.get("/api/dashboard/stats", async (req, res) => {
                  progress: youtubeProgress,
                  completed: youtubeCompleted,
                  total: youtubeTotal,
-                 playlistId: ytPlatform?.username
+                 playlistId: ytPlatform?.username,
+                 quizStats: {
+                     total: totalQuizzes,
+                     completed: completedQuizzes,
+                     averageScore: avgQuizScore
+                 },
+                 certificate
              },
              skills: skillsRes.rows
          });
@@ -853,7 +1317,7 @@ app.post("/api/user/video-progress", async (req, res) => {
   try {
     const decoded= jwt.verify(token, JWT_SECRET);
     const userId = decoded.id;
-    const { videoId, playlistId, progress, completed } = req.body;
+    const { videoId, playlistId, progress, completed, quizMark } = req.body;
     if (!videoId) return res.status(400).json({ message: "Missing data" });
 
     const existing = await pool.query(
@@ -862,18 +1326,40 @@ app.post("/api/user/video-progress", async (req, res) => {
     );
 
     if (existing.rows.length > 0) {
-      await pool.query(
-        `UPDATE user_video_progress SET progress=$1, completed=$2, updated_at=NOW() WHERE user_id=$3 AND video_id=$4`,
-        [progress, completed, userId, videoId]
-      );
+      // Only update fields that are provided
+      let updateQuery = "UPDATE user_video_progress SET updated_at=NOW()";
+      const params = [];
+      let paramIndex = 1;
+
+      if (progress !== undefined) {
+         updateQuery += `, progress=$${paramIndex++}`;
+         params.push(progress);
+      }
+      if (completed !== undefined) {
+          updateQuery += `, completed=$${paramIndex++}`;
+          params.push(completed);
+      }
+      if (quizMark !== undefined) {
+          updateQuery += `, quiz_mark=$${paramIndex++}`;
+          params.push(quizMark);
+      }
+      
+      updateQuery += ` WHERE user_id=$${paramIndex++} AND video_id=$${paramIndex}`;
+      params.push(userId, videoId);
+
+      await pool.query(updateQuery, params);
+      
     } else {
       await pool.query(
-        `INSERT INTO user_video_progress (user_id, video_id, playlist_id, progress, completed, updated_at) VALUES ($1, $2, $3, $4, $5, NOW())`,
-        [userId, videoId, playlistId, progress, completed]
+        `INSERT INTO user_video_progress (user_id, video_id, playlist_id, progress, completed, quiz_mark, updated_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())`,
+        [userId, videoId, playlistId, progress || 0, completed || false, quizMark !== undefined ? quizMark : null]
       );
     }
     res.json({ message: "Saved" });
-  } catch (err) { res.status(500).json({ message: "Error" }); }
+  } catch (err) { 
+      console.error("Progress Error", err);
+      res.status(500).json({ message: "Error" }); 
+  }
 });
 
 app.get("/api/youtube/user-videos", async (req, res) => {
