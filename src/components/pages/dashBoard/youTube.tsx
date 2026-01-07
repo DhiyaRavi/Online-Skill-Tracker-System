@@ -14,6 +14,9 @@ import {
   Col,
   Progress,
   message,
+  Radio,
+  Divider,
+  Result,
 } from "antd";
 import {
   DashboardOutlined,
@@ -27,7 +30,11 @@ import {
   RobotOutlined,
   CodeOutlined,
   TrophyOutlined,
-  BookOutlined
+  BookOutlined,
+  PlayCircleOutlined,
+  FileProtectOutlined,
+  FileDoneOutlined,
+  TrophyTwoTone
 } from "@ant-design/icons";
 import YouTube from "react-youtube";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +55,13 @@ interface AIMessage {
   text: string;
 }
 
+interface QuizQuestion {
+  id: number;
+  question: string;
+  options: string[];
+  correctAnswer: string;
+}
+
 const YoutubePage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -56,6 +70,23 @@ const YoutubePage: React.FC = () => {
   const [playerId, setPlayerId] = useState("");
   const [open, setOpen] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
+
+  // Quiz State
+  const [quizVisible, setQuizVisible] = useState(false);
+  const [quizLoading, setQuizLoading] = useState(false);
+  const [quizData, setQuizData] = useState<QuizQuestion[]>([]);
+  const [userAnswers, setUserAnswers] = useState<Record<number, string>>({});
+  const [quizScore, setQuizScore] = useState<number | null>(null);
+  const [currentVideoTitle, setCurrentVideoTitle] = useState("");
+
+  // Certification State
+  const [quizStats, setQuizStats] = useState({ total: 0, completed: 0, averageScore: 0 });
+  const [certificate, setCertificate] = useState<any>(null);
+  const [examVisible, setExamVisible] = useState(false);
+  const [examLoading, setExamLoading] = useState(false);
+  const [examData, setExamData] = useState<QuizQuestion[]>([]);
+  const [examAnswers, setExamAnswers] = useState<Record<number, string>>({});
+  const [examScore, setExamScore] = useState<number | null>(null);
 
   const playerRef = useRef<any>(null);
   const intervalRef = useRef<any>(null);
@@ -84,24 +115,29 @@ const YoutubePage: React.FC = () => {
     if (!token) return;
 
     try {
-        const statsRes = await axios.get("http://localhost:5000/api/dashboard/stats", {
+        const statsRes = await axios.get("http://localhost:5001/api/dashboard/stats", {
             headers: { Authorization: `Bearer ${token}` }
         });
 
         const yt = statsRes.data.youtube;
         if (yt && yt.connected && yt.playlistId) {
+            
+            // Set Stats
+            if (yt.quizStats) setQuizStats(yt.quizStats);
+            if (yt.certificate) setCertificate(yt.certificate);
+
             const savedId = yt.playlistId;
             setPlaylistUrl(`https://www.youtube.com/playlist?list=${savedId}`);
 
             try {
                 const listRes = await axios.get(
-                    `http://localhost:5000/api/youtube/playlist?playlistId=${savedId}`
+                    `http://localhost:5001/api/youtube/playlist?playlistId=${savedId}`
                 );
                 
                 let fetchedVideos = listRes.data.videos || [];
 
                 try {
-                    const progRes = await axios.get(`http://localhost:5000/api/youtube/user-videos?playlistId=${savedId}`, {
+                    const progRes = await axios.get(`http://localhost:5001/api/youtube/user-videos?playlistId=${savedId}`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     const progressMap = new Map<string, any>(progRes.data.map((v: any) => [v.video_id, v]));
@@ -143,18 +179,18 @@ const YoutubePage: React.FC = () => {
     try {
         // Fetch from YouTube API helper
         const { data } = await axios.get(
-            `http://localhost:5000/api/youtube/playlist?playlistId=${playlistId}`
+            `http://localhost:5001/api/youtube/playlist?playlistId=${playlistId}`
         );
         const videoList = data.videos || [];
         
         // Save to DB
-        await axios.post("http://localhost:5000/api/youtube/save-videos", {
+        await axios.post("http://localhost:5001/api/youtube/save-videos", {
             playlistId,
             videos: videoList
         }, { headers: { Authorization: `Bearer ${token}` } });
 
         // Update User Platform connection as well
-        await axios.post("http://localhost:5000/api/platform/connect", {
+        await axios.post("http://localhost:5001/api/platform/connect", {
             platform: 'youtube',
             value: playlistUrl
         }, { headers: { Authorization: `Bearer ${token}` } });
@@ -166,6 +202,48 @@ const YoutubePage: React.FC = () => {
       console.error("Error connecting playlist:", err);
       alert(err.response?.data?.message || "Failed to save playlist.");
     }
+  };
+  const startFinalExam = async () => {
+    setExamVisible(true);
+    setExamLoading(true);
+    try {
+        const { data } = await axios.post("http://localhost:5001/api/ai/generate-final-exam", {
+             videoTitle: "Full Course Content" 
+        });
+        setExamData(data.questions || []);
+    } catch (e) {
+        message.error("Failed to load Final Exam");
+        setExamVisible(false);
+    } finally {
+        setExamLoading(false);
+    }
+  };
+
+  const submitFinalExam = async () => {
+      let score = 0;
+      examData.forEach(q => {
+          if (examAnswers[q.id] === q.correctAnswer) score++;
+      });
+      setExamScore(score);
+      
+      const percentage = (score / examData.length) * 100;
+      if (percentage >= 70) {
+          message.success("Congratulations! You passed the exam!");
+          // Issue Certificate
+          const token = localStorage.getItem("token");
+          try {
+              const { data } = await axios.post("http://localhost:5001/api/user/issue-certificate", {
+                  playlistId: extractPlaylistId(playlistUrl),
+                  courseName: "YouTube Course Certification"
+              }, { headers: { Authorization: `Bearer ${token}` } });
+              
+              setCertificate({ certificate_id: data.certificateId, course_name: "YouTube Course Certification", issue_date: new Date() });
+          } catch (e) {
+              message.error("Error issuing certificate");
+          }
+      } else {
+          message.error("You did not pass. Try again later.");
+      }
   };
 
   const askAI = async () => {
@@ -183,7 +261,7 @@ const YoutubePage: React.FC = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/ai/ask",
+        "http://localhost:5001/api/ai/ask",
         { message: aiInput, videoTitle },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -220,7 +298,7 @@ const YoutubePage: React.FC = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/user/video-progress",
+        "http://localhost:5001/api/user/video-progress",
         {
           videoId,
           playlistId: extractPlaylistId(playlistUrl) || videos[0]?.videoId, 
@@ -263,6 +341,60 @@ const YoutubePage: React.FC = () => {
     calculateOverallProgress();
   }, [videos]);
 
+  const fetchQuiz = async (title: string) => {
+    setQuizLoading(true);
+    setQuizVisible(true);
+    setQuizScore(null);
+    setUserAnswers({});
+    setCurrentVideoTitle(title);
+    
+    try {
+      const { data } = await axios.post("http://localhost:5001/api/ai/generate-quiz", {
+        videoTitle: title
+      });
+      setQuizData(data.questions || []);
+    } catch (err) {
+      console.error("Quiz Error", err);
+      message.error("Failed to generate quiz");
+      setQuizVisible(false);
+    } finally {
+      setQuizLoading(false);
+    }
+  };
+
+  const handleQuizSubmit = async () => {
+    let score = 0;
+    quizData.forEach(q => {
+      if (userAnswers[q.id] === q.correctAnswer) {
+        score++;
+      }
+    });
+    setQuizScore(score);
+
+    // Save score to backend
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+        await axios.post(
+            "http://localhost:5001/api/user/video-progress",
+            {
+                videoId: playerId,
+                playlistId: extractPlaylistId(playlistUrl) || videos[0]?.videoId, 
+                // We want to keep existing progress/completed status, 
+                // but usually quiz is done after completion anyway.
+                completed: true, 
+                quizMark: score
+            },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+        message.success(`Quiz saved! Score: ${score}/${quizData.length}`);
+    } catch (err) {
+        console.error("Failed to save quiz score", err);
+        message.error("Failed to save quiz score");
+    }
+  };
+
   const handleVideoStateChange = (event: any) => {
     if (event.data === 0) {
       setVideos((prev) =>
@@ -271,6 +403,12 @@ const YoutubePage: React.FC = () => {
         )
       );
       sendProgressToBackend(playerId, 100, true);
+      
+      // Trigger Quiz
+      const video = videos.find(v => v.videoId === playerId);
+      if (video) {
+        fetchQuiz(video.title);
+      }
     }
   };
 
@@ -294,6 +432,7 @@ const YoutubePage: React.FC = () => {
             { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
             { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
             { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "udemy", icon: <PlayCircleOutlined />, label: "Udemy" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}
         />
@@ -322,8 +461,67 @@ const YoutubePage: React.FC = () => {
           </Space>
 
           <div style={{ marginTop: 20, marginBottom: 20 }}>
-            <Text>Overall Playlist Progress:</Text>
-            <Progress percent={overallProgress} />
+            <Row gutter={16}>
+               <Col span={12}>
+                  <Card>
+                    <Space size={20}>
+                        <Progress type="circle" percent={overallProgress} size={60} />
+                        <div>
+                            <Title level={5} style={{ margin: 0 }}>Course Progress</Title>
+                            <Text type="secondary">{overallProgress}% Completed</Text>
+                        </div>
+                    </Space>
+                  </Card>
+               </Col>
+               <Col span={12}>
+                  <Card>
+                    <Space size={20}>
+                        <Progress 
+                            type="circle" 
+                            percent={Math.round((quizStats.averageScore || 0) * 20)} // Assuming score out of 5 -> *20 = %
+                            format={() => quizStats.averageScore}
+                            size={60} 
+                            strokeColor={quizStats.averageScore >= 3.75 ? "#52c41a" : "#faad14"} 
+                        />
+                        <div>
+                            <Title level={5} style={{ margin: 0 }}>Quiz Performance</Title>
+                            <Text type="secondary">{quizStats.completed}/{quizStats.total} Quizzes • Avg Score</Text>
+                        </div>
+                    </Space>
+                  </Card>
+               </Col>
+            </Row>
+            
+            {/* CERTIFICATE SECTION */}
+            <Card style={{ marginTop: 16, background: '#f6ffed', borderColor: '#b7eb8f' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Space>
+                        <TrophyTwoTone twoToneColor="#52c41a" style={{ fontSize: 24 }} />
+                        <div>
+                            <Title level={5} style={{ margin: 0 }}>Course Certification</Title>
+                            {certificate ? (
+                                <Text type="success">Certified • ID: {certificate.certificate_id} • Issued: {new Date(certificate.issue_date).toLocaleDateString()}</Text>
+                            ) : (
+                                <Text>Complete 100% videos & Maintain &gt;75% Quiz Avg to unlock Final Exam</Text>
+                            )}
+                        </div>
+                    </Space>
+                    
+                    {certificate ? (
+                        <Button type="primary" icon={<FileProtectOutlined />} onClick={() => message.info("Downloading Certificate...")}>
+                            Download Certificate
+                        </Button>
+                    ) : (
+                       <Button 
+                            type="primary" 
+                            disabled={overallProgress < 100 || (quizStats.averageScore || 0) < 3.8} // 75% of 5 is 3.75
+                            onClick={startFinalExam}
+                        >
+                            Take Final Exam
+                        </Button>
+                    )}
+                </div>
+            </Card>
           </div>
 
           <Row gutter={[16, 16]}>
@@ -432,6 +630,146 @@ const YoutubePage: React.FC = () => {
               />
             </div>
           </Card>
+          
+          {/* QUIZ MODAL */}
+          <Modal
+            title={`Quiz: ${currentVideoTitle}`}
+            open={quizVisible}
+            onCancel={() => setQuizVisible(false)}
+            footer={null}
+            width={700}
+            destroyOnClose
+          >
+            {quizLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <Progress type="circle" status="active" />
+                <p style={{ marginTop: 20 }}>Generating specific questions for this video...</p>
+              </div>
+            ) : quizScore !== null ? (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <Title level={2} style={{ color: quizScore >= 3 ? '#52c41a' : '#faad14' }}>
+                        You scored {quizScore} / {quizData.length}
+                    </Title>
+                    <Progress type="circle" percent={(quizScore / quizData.length) * 100} width={120} />
+                     <Divider />
+                     <div style={{ textAlign: 'left' }}>
+                        {quizData.map((q, i) => (
+                            <Card key={i} style={{ marginBottom: 10, borderColor: userAnswers[q.id] === q.correctAnswer ? '#b7eb8f' : '#ffa39e' }}>
+                                <Text strong>{i+1}. {q.question}</Text>
+                                <br />
+                                <Text type="secondary">Your Answer: {userAnswers[q.id]}</Text>
+                                <br />
+                                {userAnswers[q.id] !== q.correctAnswer && (
+                                    <Text type="success">Correct Answer: {q.correctAnswer}</Text>
+                                )}
+                            </Card>
+                        ))}
+                     </div>
+                     <Button type="primary" size="large" onClick={() => setQuizVisible(false)} style={{ marginTop: 20 }}>
+                        Close & Continue
+                     </Button>
+                </div>
+            ) : (
+                <div>
+                    {quizData.map((q, index) => (
+                        <div key={q.id} style={{ marginBottom: 24 }}>
+                            <Text strong style={{ fontSize: 16 }}>{index + 1}. {q.question}</Text>
+                            <div style={{ marginTop: 10 }}>
+                                <Radio.Group 
+                                    onChange={(e) => setUserAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                                    value={userAnswers[q.id]}
+                                >
+                                    <Space direction="vertical">
+                                        {q.options.map(opt => (
+                                            <Radio key={opt} value={opt}>{opt}</Radio>
+                                        ))}
+                                    </Space>
+                                </Radio.Group>
+                            </div>
+                        </div>
+                    ))}
+                    <Divider />
+                    <Button 
+                        type="primary" 
+                        block 
+                        size="large" 
+                        onClick={handleQuizSubmit}
+                        disabled={Object.keys(userAnswers).length < quizData.length}
+                    >
+                        Submit Quiz
+                    </Button>
+                </div>
+            )}
+          </Modal>
+
+          {/* FINAL EXAM MODAL */}
+          <Modal
+             title={<Space><FileDoneOutlined /> Final Course Exam</Space>}
+             open={examVisible}
+             onCancel={() => setExamVisible(false)}
+             width={800}
+             footer={null}
+          >
+             {examLoading ? (
+                 <div style={{ textAlign: "center", padding: 50 }}>
+                     <Progress type="circle" percent={70} status="active" />
+                     <p>Generating Final Exam...</p>
+                 </div>
+             ) : examScore !== null ? (
+                 <div style={{ textAlign: "center", padding: 30 }}>
+                     {examScore / examData.length >= 0.7 ? (
+                         <Result
+                            status="success"
+                            title="You Passed!"
+                            subTitle={`Score: ${examScore}/${examData.length}. Certificate Issued.`}
+                            extra={[
+                                <Button type="primary" key="close" onClick={() => setExamVisible(false)}>
+                                    Close & View Certificate
+                                </Button>
+                            ]}
+                         />
+                     ) : (
+                         <Result
+                            status="error"
+                            title="You Failed"
+                            subTitle={`Score: ${examScore}/${examData.length}. You need 70% to pass.`}
+                            extra={[
+                                <Button key="retry" onClick={() => { setExamScore(null); setExamAnswers({}); }}>
+                                    Retry
+                                </Button>
+                            ]}
+                         />
+                     )}
+                 </div>
+             ) : (
+                 <div>
+                     {examData.map((q, i) => (
+                        <Card key={i} size="small" style={{ marginBottom: 10 }}>
+                            <Text strong>{i+1}. {q.question}</Text>
+                            <Radio.Group 
+                                style={{ display: 'flex', flexDirection: 'column', marginTop: 10 }}
+                                onChange={(e) => setExamAnswers(prev => ({ ...prev, [q.id]: e.target.value }))}
+                                value={examAnswers[q.id]}
+                            >
+                                {q.options.map(opt => (
+                                    <Radio key={opt} value={opt}>{opt}</Radio>
+                                ))}
+                            </Radio.Group>
+                        </Card>
+                     ))}
+                     <Button 
+                        type="primary" 
+                        block 
+                        size="large" 
+                        disabled={Object.keys(examAnswers).length < examData.length}
+                        onClick={submitFinalExam}
+                     >
+                        Submit Final Exam
+                     </Button>
+                 </div>
+             )}
+          </Modal>
+
         </Content>
       </Layout>
     </Layout>

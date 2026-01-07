@@ -18,7 +18,7 @@ const ConnectPlatformModal: React.FC<ConnectPlatformModalProps> = ({ visible, on
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/platform/connect', {
+      await axios.post('http://localhost:5001/api/platform/connect', {
         platform: values.platform,
         value: values.value
       }, {

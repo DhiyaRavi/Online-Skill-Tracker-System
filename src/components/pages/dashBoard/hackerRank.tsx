@@ -14,7 +14,8 @@ import {
   SettingOutlined,
   LogoutOutlined,
   BellOutlined,
-  BookOutlined
+  BookOutlined,
+  PlayCircleOutlined
 } from "@ant-design/icons";
 import { Layout, Menu, Avatar, Space, Spin, Tag, Card, Row, Col, Typography, Input, Button, message } from "antd";
 import axios from "axios";
@@ -53,7 +54,7 @@ const HackerRankStats: React.FC = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/ai/hackerrank-guide",
+        "http://localhost:5001/api/ai/hackerrank-guide",
         {
           badges: profile.badges,
           name: profile.name || username,
@@ -77,7 +78,7 @@ const HackerRankStats: React.FC = () => {
   const fetchAnalysis = async (badges: any, name: string) => {
     setAnalysisLoading(true);
     try {
-      const { data } = await axios.post("http://localhost:5000/api/ai/hackerrank-analysis", {
+      const { data } = await axios.post("http://localhost:5001/api/ai/hackerrank-analysis", {
         badges,
         name
       });
@@ -95,7 +96,7 @@ const HackerRankStats: React.FC = () => {
     try {
         const token = localStorage.getItem("token");
         const res = await axios.post(
-            "http://localhost:5000/api/platform/connect",
+            "http://localhost:5001/api/platform/connect",
             { platform: "hackerrank", value: user },
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -126,7 +127,7 @@ const HackerRankStats: React.FC = () => {
         try {
             const token = localStorage.getItem("token");
             if(!token) return;
-            const res = await axios.get("http://localhost:5000/api/dashboard/stats", {
+            const res = await axios.get("http://localhost:5001/api/dashboard/stats", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const platform = res.data.platforms?.find((p: any) => p.platform === "hackerrank");
@@ -169,6 +170,7 @@ const HackerRankStats: React.FC = () => {
             { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
             { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
             { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "udemy", icon: <PlayCircleOutlined />, label: "Udemy" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}
         />

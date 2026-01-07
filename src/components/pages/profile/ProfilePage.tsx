@@ -79,7 +79,7 @@ const ProfilePage: React.FC = () => {
         if (!token) return;
 
         const res = await axios.get(
-          "http://localhost:5000/api/user/profile",
+          "http://localhost:5001/api/user/profile",
           {
             headers: { Authorization: `Bearer ${token}` }
           }
@@ -120,7 +120,7 @@ const ProfilePage: React.FC = () => {
       formData.append("photo", file);
 
       const res = await axios.post(
-        "http://localhost:5000/api/user/upload-photo",
+        "http://localhost:5001/api/user/upload-photo",
         formData,
         {
           headers: {
@@ -168,7 +168,7 @@ const ProfilePage: React.FC = () => {
       };
 
       await axios.post(
-        "http://localhost:5000/api/user/profile",
+        "http://localhost:5001/api/user/profile",
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );

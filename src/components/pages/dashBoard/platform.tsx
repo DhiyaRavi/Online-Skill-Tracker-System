@@ -94,6 +94,10 @@ const Dashboard: React.FC = () => {
       navigate("/coursera");
       return;
     }
+    if (platform.key === "udemy") {
+      navigate("/udemy");
+      return;
+    }
     setSelectedPlatform(platform);
     setIsModalOpen(true);
   };
@@ -229,7 +233,7 @@ const Dashboard: React.FC = () => {
                   (async () => {
                     try {
                         const token = localStorage.getItem("token");
-                        await axios.post("http://localhost:5000/api/platform/connect", {
+                        await axios.post("http://localhost:5001/api/platform/connect", {
                             platform: selectedPlatform.key,
                             value: values.username 
                         }, { headers: { Authorization: `Bearer ${token}` } });

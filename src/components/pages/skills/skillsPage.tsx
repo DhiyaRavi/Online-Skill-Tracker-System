@@ -37,7 +37,7 @@ const SkillsPage = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) return;
-        const res = await axios.get("http://localhost:5000/api/user/skills", {
+        const res = await axios.get("http://localhost:5001/api/user/skills", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setSelectedSkills(res.data.map((s: any) => s.skill));
@@ -70,7 +70,7 @@ const SkillsPage = () => {
       const token = localStorage.getItem("token");
 
       await axios.post(
-        "http://localhost:5000/api/user/skills",
+        "http://localhost:5001/api/user/skills",
         { skills: selectedSkills },
         { headers: { Authorization: `Bearer ${token}` } }
       );

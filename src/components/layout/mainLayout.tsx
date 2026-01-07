@@ -11,6 +11,11 @@ import {
   SettingOutlined,
   BellOutlined,
   LogoutOutlined,
+  YoutubeOutlined,
+  CodeOutlined,
+  TrophyOutlined,
+  BookOutlined,
+  PlayCircleOutlined,
 } from "@ant-design/icons";
 
 const { Header, Sider, Content } = Layout;
@@ -51,6 +56,11 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             { key: "skills", icon: <AppstoreOutlined />, label: "Skills" },
             { key: "platforms", icon: <CloudSyncOutlined />, label: "Platforms" },
             { key: "analytics", icon: <BarChartOutlined />, label: "Analytics" },
+            { key: "youtube", icon: <YoutubeOutlined />, label: "YouTube" },
+            { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
+            { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
+            { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "udemy", icon: <PlayCircleOutlined />, label: "Udemy" },
             { key: "profile", icon: <UserOutlined />, label: "Profile" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}

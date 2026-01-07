@@ -7,6 +7,7 @@ import {
   Row,
   Col,
   Typography,
+  Input,
   Button,
   Space,
   Avatar,
@@ -39,6 +40,9 @@ import {
   LinkOutlined,
   TrophyOutlined,
   BookOutlined,
+  PlayCircleOutlined,
+  ShareAltOutlined,
+  CopyOutlined
 } from "@ant-design/icons";
 import ConnectPlatformModal from "./ConnectPlatformModal";
 
@@ -172,6 +176,9 @@ const Dashboard: React.FC = () => {
   // Stats
   const [platformData, setPlatformData] = useState<any[]>([]);
   const [youtubeData, setYoutubeData] = useState<any>(null);
+  const [shareLink, setShareLink] = useState("");
+  const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+  const [shareLoading, setShareLoading] = useState(false);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -179,7 +186,7 @@ const Dashboard: React.FC = () => {
         const token = localStorage.getItem("token");
         if(!token) return;
 
-        const res = await axios.get("http://localhost:5000/api/dashboard/stats", {
+        const res = await axios.get("http://localhost:5001/api/dashboard/stats", {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -188,7 +195,7 @@ const Dashboard: React.FC = () => {
         setMySkills(res.data.skills);
 
         // Fetch Profile
-        const profRes = await axios.get("http://localhost:5000/api/user/profile", {
+        const profRes = await axios.get("http://localhost:5001/api/user/profile", {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(profRes.data);
@@ -203,7 +210,7 @@ const Dashboard: React.FC = () => {
   const fetchSkillResources = async (skillName: string) => {
     setLoadingResources(true);
     try {
-      const res = await axios.post("http://localhost:5000/api/ai/skill-resources", { skillName });
+      const res = await axios.post("http://localhost:5001/api/ai/skill-resources", { skillName });
       setSkillResources(res.data);
     } catch (err) {
       message.error("Failed to fetch AI resources");
@@ -280,7 +287,7 @@ const Dashboard: React.FC = () => {
   const summaryCards = [
     { label: "Total Skills", value: mySkills.length.toString(), icon: <LineChartOutlined /> },
     { label: "Learning Hours", value: "12h", icon: <ThunderboltOutlined /> }, 
-    { label: "Overall Progress", value: `${Math.round((youtubeProgress + (leetcodeSolved/5) + (hackerRankBadges*10))/3)}%`, icon: <BarChartOutlined /> }, 
+    { label: "Overall Progress", value: `${Math.round((youtubeProgress + (leetcodeSolved/5) + (hackerRankBadges*10) + (udemyCourses*20))/4)}%`, icon: <BarChartOutlined /> }, 
     { label: "Platforms", value: platformData.length.toString(), icon: <CloudSyncOutlined /> },
   ];
 
@@ -301,6 +308,28 @@ const Dashboard: React.FC = () => {
   const notifications = [
     { title: "Weekly Goal", detail: "Solve 5 LeetCode problems" },
   ];
+
+  const handleGenerateShareLink = async () => {
+    setShareLoading(true);
+    try {
+        const token = localStorage.getItem("token");
+        const res = await axios.post("http://localhost:5001/api/user/generate-share-link", {}, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const fullLink = `${window.location.origin}/share/${res.data.shareToken}`;
+        setShareLink(fullLink);
+        setIsShareModalVisible(true);
+    } catch (err) {
+        message.error("Failed to generate share link");
+    } finally {
+        setShareLoading(false);
+    }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(shareLink);
+    message.success("Link copied to clipboard!");
+  };
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -355,6 +384,7 @@ const Dashboard: React.FC = () => {
             { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
             { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
             { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "udemy", icon: <PlayCircleOutlined />, label: "Udemy" },
             { key: "profile", icon: <UserOutlined />, label: "Profile" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}
@@ -374,6 +404,15 @@ const Dashboard: React.FC = () => {
             Dashboard Overview
           </Title>
           <Space size="middle">
+            <Button 
+                type="primary" 
+                icon={<ShareAltOutlined />} 
+                onClick={handleGenerateShareLink}
+                loading={shareLoading}
+                style={{ background: '#722ed1', borderColor: '#722ed1' }}
+            >
+                Share Progress
+            </Button>
             <Button type="text" icon={<SettingOutlined />} />
             <Badge dot>
               <Button type="text" icon={<BellOutlined />} />
@@ -572,6 +611,26 @@ const Dashboard: React.FC = () => {
           )}
 
         </Content>
+
+        {/* Share Link Modal */}
+        <Modal
+            title="Share Your Learning Progress"
+            open={isShareModalVisible}
+            onCancel={() => setIsShareModalVisible(false)}
+            footer={null}
+            width={500}
+        >
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                <Title level={5}>Share this link with your interviewer or friends:</Title>
+                <Space.Compact style={{ width: '100%', marginTop: 20 }}>
+                    <Input value={shareLink} readOnly prefix={<LinkOutlined />} />
+                    <Button type="primary" icon={<CopyOutlined />} onClick={copyToClipboard}>Copy</Button>
+                </Space.Compact>
+                <p style={{ marginTop: 20, color: '#8c8c8c' }}>
+                    This link provides a read-only view of your skills, platform progress, and certifications.
+                </p>
+            </div>
+        </Modal>
 
         <Footer style={{ textAlign: "center" }}>
           <Text type="secondary">SkillTracker v1.5.0 • Support Center</Text>

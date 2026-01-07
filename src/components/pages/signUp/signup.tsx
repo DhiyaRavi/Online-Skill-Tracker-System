@@ -14,7 +14,7 @@ const SignUp: React.FC = () => {
       setLoading(true);
       const { name, email, password } = values;
 
-      const res = await axios.post("http://localhost:5000/api/signup", {
+      const res = await axios.post("http://localhost:5001/api/signup", {
         name,
         email,
         password,

@@ -25,7 +25,8 @@ import {
   CodeOutlined,
   YoutubeOutlined,
   TrophyOutlined,
-  BookOutlined
+  BookOutlined,
+  PlayCircleOutlined
 } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -59,7 +60,7 @@ const LeetCode: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        "http://localhost:5000/api/platform/connect",
+        "http://localhost:5001/api/platform/connect",
         { platform: "leetcode", value: user },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -85,7 +86,7 @@ const LeetCode: React.FC = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/ai/leetcode-guide",
+        "http://localhost:5001/api/ai/leetcode-guide",
         {
           stats: stats.submitStats,
           username: stats.username || username,
@@ -130,7 +131,7 @@ const LeetCode: React.FC = () => {
         if (!token) return;
 
         const res = await axios.get(
-          "http://localhost:5000/api/dashboard/stats",
+          "http://localhost:5001/api/dashboard/stats",
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -174,6 +175,7 @@ const LeetCode: React.FC = () => {
             { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
             { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
             { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "udemy", icon: <PlayCircleOutlined />, label: "Udemy" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}
         />

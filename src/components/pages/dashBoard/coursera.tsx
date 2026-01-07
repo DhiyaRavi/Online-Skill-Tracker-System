@@ -30,7 +30,8 @@ import {
     CodeOutlined,
     SettingOutlined,
     LogoutOutlined,
-    BellOutlined
+    BellOutlined,
+    PlayCircleOutlined
 } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -70,7 +71,7 @@ const CourseraStats: React.FC = () => {
 
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/ai/coursera-guide",
+        "http://localhost:5001/api/ai/coursera-guide",
         {
           stats: profile.stats,
           username: profile.username || username,
@@ -95,7 +96,7 @@ const CourseraStats: React.FC = () => {
     setAnalysisLoading(true);
     try {
       const { data } = await axios.post(
-        "http://localhost:5000/api/ai/coursera-analysis",
+        "http://localhost:5001/api/ai/coursera-analysis",
         { stats, username: user },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -112,7 +113,7 @@ const CourseraStats: React.FC = () => {
     try {
         const token = localStorage.getItem("token");
         const res = await axios.post(
-            "http://localhost:5000/api/platform/connect",
+            "http://localhost:5001/api/platform/connect",
             { platform: "coursera", value: user },
             { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -147,7 +148,7 @@ const CourseraStats: React.FC = () => {
         try {
             const token = localStorage.getItem("token");
             if(!token) return;
-            const res = await axios.get("http://localhost:5000/api/dashboard/stats", {
+            const res = await axios.get("http://localhost:5001/api/dashboard/stats", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const platform = res.data.platforms?.find((p: any) => p.platform === "coursera");
@@ -197,6 +198,7 @@ const CourseraStats: React.FC = () => {
             { key: "leetcode", icon: <CodeOutlined />, label: "LeetCode" },
             { key: "hackerrank", icon: <TrophyOutlined />, label: "HackerRank" },
             { key: "coursera", icon: <BookOutlined />, label: "Coursera" },
+            { key: "udemy", icon: <PlayCircleOutlined />, label: "Udemy" },
             { key: "settings", icon: <SettingOutlined />, label: "Settings" },
           ]}
         />
