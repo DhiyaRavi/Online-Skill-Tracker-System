@@ -12,10 +12,12 @@ import { google } from "googleapis";
 import OpenAI from "openai";
 import multer from "multer";
 import path from "path";
+import chatgptRoutes from "./routes/chatgpt.js";
 import fs from "fs";
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/api/ai", chatgptRoutes);
 const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 
 const PORT = process.env.PORT || 5001;
@@ -186,6 +188,7 @@ app.post("/api/ai/hackerrank-analysis", async (req, res) => {
     res.status(500).json({ error: "Analysis failed", details: error.message });
   }
 });
+
 
 app.post("/api/ai/coursera-guide", async (req, res) => {
   try {
@@ -648,6 +651,17 @@ const initDB = async () => {
         `);
       }
 
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS user_certificates (
+            id SERIAL PRIMARY KEY,
+            user_id INT,
+            playlist_id VARCHAR(100),
+            course_name VARCHAR(255),
+            certificate_id VARCHAR(100) UNIQUE,
+            issue_date TIMESTAMP DEFAULT NOW()
+        );
+      `);
+
     console.log("Tables initialized");
   } catch (err) {
     console.error("Error initializing DB tables:", err);
@@ -708,7 +722,7 @@ app.get("/api/youtube/playlist", async (req, res) => {
   try {
     const youtube = google.youtube({
       version: "v3",
-      auth: "AIzaSyBSDZMphiNry3p9-RjtoDdCWTUlj2JxtK4", // Restored Key
+      auth: process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY,
     });
 
     const response = await youtube.playlistItems.list({
@@ -822,7 +836,7 @@ const fetchYoutubePlaylist = async (playlistId) => {
      try {
         const youtube = google.youtube({
           version: "v3",
-          auth: process.env.YOUTUBE_API_KEY, // Restored Key
+          auth: process.env.YOUTUBE_API_KEY || process.env.GOOGLE_API_KEY,
         });
     
         const response = await youtube.playlistItems.list({
@@ -1283,9 +1297,14 @@ app.get("/api/dashboard/stats", async (req, res) => {
          }
 
          const skillsRes = await pool.query("SELECT * FROM user_skills WHERE user_id=$1", [userId]);
+         
+         // Fetch Profile Pic
+         const profileRes = await pool.query("SELECT profile_pic FROM user_profiles WHERE user_id=$1", [userId]);
+         const userPic = profileRes.rows[0]?.profile_pic || null;
 
          res.json({
              platforms: platformsRes.rows,
+             userPic, // Send back userPic
              youtube: {
                  connected: !!ytPlatform,
                  progress: youtubeProgress,
@@ -1370,13 +1389,16 @@ app.get("/api/youtube/user-videos", async (req, res) => {
       const userId = decoded.id;
       const { playlistId } = req.query;
       const result = await pool.query(
-        `SELECT v.video_id, v.title, v.thumbnail, COALESCE(p.progress, 0) AS progress, COALESCE(p.completed, false) AS completed
+        `SELECT v.video_id as "videoId", v.title, v.thumbnail, COALESCE(p.progress, 0) AS progress, COALESCE(p.completed, false) AS completed
          FROM youtube_videos v LEFT JOIN user_video_progress p ON v.video_id = p.video_id AND p.user_id=$1
-         WHERE v.user_id=$1 AND v.playlist_id=$2`,
+         WHERE v.user_id=$1 AND v.playlist_id=$2 ORDER BY v.id ASC;`,
         [userId, playlistId]
       );
       res.json(result.rows);
-    } catch (err) { res.status(500).json({ message: "Error" }); }
+    } catch (err) { 
+        console.error("User Videos Error:", err);
+        res.status(500).json({ message: "Error fetching user videos", error: err.message }); 
+    }
 });
 
 app.post("/api/user/skills", async (req, res) => {
@@ -1466,7 +1488,7 @@ app.post("/api/user/profile", async (req, res) => {
 
 app.post("/api/user/upload-photo", upload.single("photo"), (req, res) => {
   if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-  const url = `http://localhost:5000/uploads/${req.file.filename}`;
+  const url = `http://localhost:${PORT}/uploads/${req.file.filename}`;
   res.json({ url });
 });
 
