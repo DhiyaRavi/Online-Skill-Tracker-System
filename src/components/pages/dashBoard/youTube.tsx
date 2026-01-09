@@ -70,6 +70,7 @@ const YoutubePage: React.FC = () => {
   const [playerId, setPlayerId] = useState("");
   const [open, setOpen] = useState(false);
   const [overallProgress, setOverallProgress] = useState(0);
+  const [userPic, setUserPic] = useState<string>("");
 
   // Quiz State
   const [quizVisible, setQuizVisible] = useState(false);
@@ -119,6 +120,8 @@ const YoutubePage: React.FC = () => {
             headers: { Authorization: `Bearer ${token}` }
         });
 
+        if (statsRes.data.userPic) setUserPic(statsRes.data.userPic);
+
         const yt = statsRes.data.youtube;
         if (yt && yt.connected && yt.playlistId) {
             
@@ -130,29 +133,30 @@ const YoutubePage: React.FC = () => {
             setPlaylistUrl(`https://www.youtube.com/playlist?list=${savedId}`);
 
             try {
+                // TRY DB FIRST
+                const dbVideosRes = await axios.get(`http://localhost:5001/api/youtube/user-videos?playlistId=${savedId}`, {
+                     headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (dbVideosRes.data && dbVideosRes.data.length > 0) {
+                     setVideos(dbVideosRes.data);
+                     return; 
+                }
+
+                // If DB empty, Fallback to External API (Quota heavy)
                 const listRes = await axios.get(
                     `http://localhost:5001/api/youtube/playlist?playlistId=${savedId}`
                 );
                 
                 let fetchedVideos = listRes.data.videos || [];
-
-                try {
-                    const progRes = await axios.get(`http://localhost:5001/api/youtube/user-videos?playlistId=${savedId}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const progressMap = new Map<string, any>(progRes.data.map((v: any) => [v.video_id, v]));
-
-                    fetchedVideos = fetchedVideos.map((v: any) => {
-                        const saved = progressMap.get(v.videoId);
-                        return {
-                            ...v,
-                            progress: saved ? (saved.progress as number) : 0,
-                            completed: saved ? (saved.completed as boolean) : false
-                        };
-                    });
-                } catch (e) { console.log("No progress found"); }
-
                 setVideos(fetchedVideos);
+                
+                // Save them to DB for next time
+                await axios.post("http://localhost:5001/api/youtube/save-videos", {
+                    playlistId: savedId,
+                    videos: fetchedVideos
+                }, { headers: { Authorization: `Bearer ${token}` } });
+
             } catch (err) {
                  console.error("Failed to load videos for saved playlist", err);
             }
@@ -443,7 +447,7 @@ const YoutubePage: React.FC = () => {
           <Title level={4} style={{ margin: 0 }}>YouTube Learning Tracker</Title>
           <Space size={20}>
             <BellOutlined style={{ fontSize: 22 }} />
-            <Avatar src="https://i.pravatar.cc/150?img=8" />
+            <Avatar src={userPic || "https://i.pravatar.cc/150?img=8"} icon={<DashboardOutlined />} />
             <Button icon={<LogoutOutlined />} type="text" onClick={() => { localStorage.removeItem('token'); navigate('/'); }}>Logout</Button>
           </Space>
         </Header>

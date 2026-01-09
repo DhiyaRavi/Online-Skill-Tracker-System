@@ -42,6 +42,7 @@ const { Title, Text } = Typography;
 const UdemyStats: React.FC = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
+  const [userPic, setUserPic] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null); 
   const [isSaved, setIsSaved] = useState(false);
@@ -223,6 +224,7 @@ const UdemyStats: React.FC = () => {
             const res = await axios.get("http://localhost:5001/api/dashboard/stats", {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            if (res.data.userPic) setUserPic(res.data.userPic);
             const plat = res.data.platforms?.find((p: any) => p.platform === "udemy");
             if (plat) {
                 setUsername(plat.username);
@@ -277,7 +279,7 @@ const UdemyStats: React.FC = () => {
           <Title level={4} style={{ margin: 0 }}>Udemy Dashboard</Title>
           <Space size={20}>
             <BellOutlined style={{ fontSize: 22 }} />
-            <Avatar src="https://i.pravatar.cc/150?img=8" />
+            <Avatar src={userPic || "https://i.pravatar.cc/150?img=8"} icon={<PlayCircleOutlined />} />
             <Button icon={<LogoutOutlined />} type="text" onClick={() => { localStorage.removeItem('token'); navigate('/'); }}>Logout</Button>
           </Space>
         </Header>

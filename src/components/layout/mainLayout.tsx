@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Layout, Menu, Avatar, Badge, Button, Typography, Space } from "antd";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 import {
   DashboardOutlined,
@@ -23,7 +24,26 @@ const { Title } = Typography;
 
 const MainLayout = ({ children }: { children: React.ReactNode }) => {
   const [collapsed, setCollapsed] = useState(false);
+  const [userPic, setUserPic] = useState<string>("");
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    const fetchUserPic = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+            const res = await axios.get("http://localhost:5001/api/user/profile", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (res.data && res.data.profile_pic) {
+                setUserPic(res.data.profile_pic);
+            }
+        } catch (e) {
+            console.error("Failed to fetch user pic", e);
+        }
+    };
+    fetchUserPic();
+  }, []);
 
   return (
     <Layout style={{ minHeight: "100vh" }}>
@@ -89,7 +109,7 @@ const MainLayout = ({ children }: { children: React.ReactNode }) => {
             <Button type="text" icon={<LogoutOutlined />}>
               Logout
             </Button>
-            <Avatar src="https://i.pravatar.cc/150?img=8" />
+            <Avatar src={userPic || "https://i.pravatar.cc/150?img=8"} icon={<UserOutlined />} />
           </Space>
         </Header>
 

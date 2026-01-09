@@ -42,6 +42,7 @@ interface AIMessage {
 const LeetCode: React.FC = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
+  const [userPic, setUserPic] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [stats, setStats] = useState<any>(null);
   const [error, setError] = useState("");
@@ -134,6 +135,7 @@ const LeetCode: React.FC = () => {
           "http://localhost:5001/api/dashboard/stats",
           { headers: { Authorization: `Bearer ${token}` } }
         );
+        if (res.data.userPic) setUserPic(res.data.userPic);
 
         const platform = res.data.platforms?.find(
           (p: any) => p.platform === "leetcode"
@@ -186,7 +188,7 @@ const LeetCode: React.FC = () => {
           <Title level={4} style={{ margin: 0 }}>LeetCode Performance Tracker</Title>
           <Space size={20}>
             <BellOutlined style={{ fontSize: 22 }} />
-            <Avatar src="https://i.pravatar.cc/150?img=8" />
+            <Avatar src={userPic || "https://i.pravatar.cc/150?img=8"} icon={<CodeOutlined />} />
             <Button icon={<LogoutOutlined />} type="text" onClick={() => { localStorage.removeItem('token'); navigate('/'); }}>Logout</Button>
           </Space>
         </Header>

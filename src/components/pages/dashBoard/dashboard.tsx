@@ -359,6 +359,7 @@ const Dashboard: React.FC = () => {
             if (item.key === "dashboard") navigate("/dashboard");
             if (item.key === "skills") navigate("/skills");
             if (item.key === "platforms") navigate("/platforms");
+            if (item.key === "leaderboard") navigate("/leaderboard");
             if (item.key === "analytics") navigate("/analytics");
             if (item.key === "profile") navigate("/profile");
             if (item.key === "settings") navigate("/settings");
@@ -374,6 +375,11 @@ const Dashboard: React.FC = () => {
               key: "platforms",
               icon: <CloudSyncOutlined />,
               label: "Platforms",
+            },
+            {
+              key: "leaderboard",
+              icon: <TrophyOutlined />,
+              label: "Leaderboard",
             },
             {
               key: "analytics",

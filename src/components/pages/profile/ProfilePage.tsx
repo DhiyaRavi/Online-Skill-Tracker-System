@@ -18,6 +18,9 @@ import {
   Switch,
   InputNumber,
   Divider,
+  Modal,
+  Steps,
+  Descriptions,
 } from "antd";
 import {
   UserOutlined,
@@ -39,6 +42,7 @@ import MainLayout from "../../layout/mainLayout";
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
+const { Step } = Steps;
 
 const ProfilePage: React.FC = () => {
   const [form] = Form.useForm();
@@ -47,28 +51,73 @@ const ProfilePage: React.FC = () => {
   const [profilePic, setProfilePic] = useState<string>("");
   const [completion, setCompletion] = useState(0);
   const [profileType, setProfileType] = useState<"student" | "professional">("student");
+  const [isNewProfile, setIsNewProfile] = useState(true);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   // 🔹 Calculate Completion Percentage
+  // 🔹 Calculate Completion Percentage
+  // 🔹 Calculate Completion Percentage
+  // 🔹 Calculate Completion Percentage
   const calculateCompletion = (values: any) => {
-    const essentialFields = [
+    // 1. Mandatory Core Fields (Must be filled for basic profile)
+    const coreFields = [
       "full_name", "profile_type", "bio", "job_title", "profile_pic",
-      "experience_level", "target_role"
-    ];
-    let filled = 0;
-    essentialFields.forEach(f => {
-      if (f === "profile_pic") {
-        if (profilePic) filled++;
-      } else if (values[f]) {
-        filled++;
-      }
-    });
-    
-    // Add logic for skills if they exist
-    if (values.skills?.primary?.length > 0) filled++;
-    if (values.goals?.career_goal) filled++;
+      "experience_level", "target_role", "career_goal"
+    ]; // 8 fields
 
-    const percentage = Math.round((filled / (essentialFields.length + 2)) * 100);
-    setCompletion(percentage);
+    // 2. Type Specific Fields
+    let typeFields: string[] = [];
+    if (values.profile_type === "student") {
+        typeFields = ["college_name", "degree", "branch", "year_of_study", "expected_graduation_year"];
+    } else {
+        typeFields = ["company_name", "current_role", "years_of_experience"];
+    }
+    // Student: +5, Pro: +3
+
+    let score = 0;
+    
+    // Check Core
+    coreFields.forEach(f => {
+       if (f === "profile_pic") {
+         if (profilePic) score++;
+       } else if (values[f]) score++;
+    });
+
+    // Check Type Specific
+    typeFields.forEach(f => {
+        if (values[f]) score++;
+    });
+
+    // 3. Grouped "One is Enough" Fields (Smart Logic)
+    
+    // Social: At least one link (LinkedIn OR GitHub OR Website)
+    if (values.linkedin || values.github || values.website) score++;
+
+    // Skills: At least one type of skill entered
+    if (
+        (values.skills?.primary?.length > 0) || 
+        (values.skills?.tools?.length > 0) || 
+        (values.skills?.learning?.length > 0)
+    ) score++;
+
+    // Platform Handles: At least one connected platform (LeetCode OR HackerRank OR GitHub)
+    // Note: GitHub username is often same as link, but this field is separate in DB
+    if (values.leetcode_username || values.hackerrank_username || values.github_username) score++;
+
+
+    // Total Denominator Calculation
+    // Core (8) + Type (5 or 3) + Social (1) + Skills (1) + Platforms (1)
+    // Student Total: 8 + 5 + 3 = 16
+    // Pro Total: 8 + 3 + 3 = 14
+    const totalPossible = coreFields.length + typeFields.length + 3;
+
+    // Optional Bonus: If they fill EVERYTHING (e.g. all 3 social links, multiple skill types), 
+    // we can allow it to buffer any missing optional fields? 
+    // For now, simple strict ratio is best for consistency.
+    
+    const percentage = Math.round((score / totalPossible) * 100);
+    setCompletion(Math.min(percentage, 100));
   };
 
   // 🔹 Fetch profile on load
@@ -102,6 +151,7 @@ const ProfilePage: React.FC = () => {
           setProfilePic(data.profile_pic || "");
           setProfileType(data.profile_type || "student");
           calculateCompletion(data);
+          setIsNewProfile(false);
         }
       } catch (err) {
         console.error("Fetch profile error:", err);
@@ -173,8 +223,11 @@ const ProfilePage: React.FC = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      message.success("Profile updated successfully");
+      message.success(isNewProfile ? "Profile Saved Successfully" : "Profile Updated Successfully");
       calculateCompletion(values);
+      setIsNewProfile(false);
+      setIsModalVisible(true); // Show summary modal
+      setCurrentStep(0);
     } catch (err) {
       console.error("Update profile error:", err);
       message.error("Failed to update profile");
@@ -414,6 +467,11 @@ const ProfilePage: React.FC = () => {
                       <Input prefix={<GlobalOutlined />} placeholder="https://yourpage.com" />
                     </Form.Item>
                   </Col>
+                  <Col span={24}>
+                    <Form.Item name="github" label="GitHub URL">
+                      <Input prefix={<GithubOutlined />} placeholder="https://github.com/..." />
+                    </Form.Item>
+                  </Col>
                 </Row>
               </Card>
 
@@ -485,6 +543,96 @@ const ProfilePage: React.FC = () => {
           </Row>
         </Form>
       </div>
+
+      <Modal
+        title="Profile Summary & Progress"
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        footer={[
+          <Button key="back" disabled={currentStep === 0} onClick={() => setCurrentStep(currentStep - 1)}>
+            Previous
+          </Button>,
+          <Button 
+            key="next" 
+            type="primary" 
+            onClick={() => {
+                if(currentStep === 2) setIsModalVisible(false);
+                else setCurrentStep(currentStep + 1);
+            }}
+          >
+            {currentStep === 2 ? "Done" : "Next"}
+          </Button>
+        ]}
+        width={700}
+      >
+        <div style={{ marginBottom: 20 }}>
+            <Progress percent={completion} status="active" />
+            <Text type="secondary" style={{ display: 'block', textAlign: 'center', marginTop: 5 }}>
+                {completion === 100 ? "Excellent! Your profile is complete." : "Almost there! Keep adding details."}
+            </Text>
+        </div>
+        
+        <Steps current={currentStep} style={{ marginBottom: 24 }}>
+            <Step title="Identity" />
+            <Step title="Professional" />
+            <Step title="Skills & Social" />
+        </Steps>
+
+        <div style={{ minHeight: 200 }}>
+            {currentStep === 0 && (
+                <Descriptions bordered column={1}>
+                    <Descriptions.Item label="Profile Photo">
+                        <Avatar src={profilePic} icon={<UserOutlined />} />
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Full Name">{form.getFieldValue("full_name")}</Descriptions.Item>
+                    <Descriptions.Item label="Profile Type">{profileType.toUpperCase()}</Descriptions.Item>
+                    <Descriptions.Item label="Bio">{form.getFieldValue("bio")}</Descriptions.Item>
+                </Descriptions>
+            )}
+            {currentStep === 1 && (
+                <Descriptions bordered column={1}>
+                    {profileType === 'student' ? (
+                        <>
+                             <Descriptions.Item label="College">{form.getFieldValue("college_name")}</Descriptions.Item>
+                             <Descriptions.Item label="Degree">{form.getFieldValue("degree")}</Descriptions.Item>
+                             <Descriptions.Item label="Graduation Year">{form.getFieldValue("expected_graduation_year")}</Descriptions.Item>
+                        </>
+                    ) : (
+                        <>
+                            <Descriptions.Item label="Company">{form.getFieldValue("company_name")}</Descriptions.Item>
+                            <Descriptions.Item label="Role">{form.getFieldValue("current_role")}</Descriptions.Item>
+                            <Descriptions.Item label="Experience">{form.getFieldValue("years_of_experience")} Years</Descriptions.Item>
+                        </>
+                    )}
+                    <Descriptions.Item label="Target Role">{form.getFieldValue("target_role")}</Descriptions.Item>
+                    <Descriptions.Item label="Career Goal">{form.getFieldValue("career_goal")}</Descriptions.Item>
+                </Descriptions>
+            )}
+             {currentStep === 2 && (
+                <Descriptions bordered column={1}>
+                    <Descriptions.Item label="Primary Skills">
+                        {(form.getFieldValue(["skills", "primary"]) || []).join(", ")}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Tools">
+                         {(form.getFieldValue(["skills", "tools"]) || []).join(", ")}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="LinkedIn">
+                         <a href={form.getFieldValue("linkedin")} target="_blank" rel="noreferrer">
+                             {form.getFieldValue("linkedin")}
+                         </a>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="GitHub">
+                         <a href={form.getFieldValue("github")} target="_blank" rel="noreferrer">
+                             {form.getFieldValue("github")}
+                         </a>
+                    </Descriptions.Item>
+                     <Descriptions.Item label="Certifications">
+                         {(form.getFieldValue(["achievements", "certifications"]) || []).join(", ")}
+                    </Descriptions.Item>
+                </Descriptions>
+            )}
+        </div>
+      </Modal>
       
       <style>{`
         .premium-card {
