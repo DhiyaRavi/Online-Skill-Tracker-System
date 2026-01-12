@@ -178,7 +178,11 @@ const Dashboard: React.FC = () => {
   const [youtubeData, setYoutubeData] = useState<any>(null);
   const [shareLink, setShareLink] = useState("");
   const [isShareModalVisible, setIsShareModalVisible] = useState(false);
+
   const [shareLoading, setShareLoading] = useState(false);
+  
+  // Skill Test Data
+  const [skillTestResult, setSkillTestResult] = useState<any>(null);
 
   const fetchDashboardData = async () => {
     setLoading(true);
@@ -221,6 +225,12 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchDashboardData();
+    
+    // Load local skill test result
+    const savedResult = localStorage.getItem("latestSkillTest");
+    if (savedResult) {
+        setSkillTestResult(JSON.parse(savedResult));
+    }
   }, []);
 
   // --- Helper to extract stats ---
@@ -517,7 +527,7 @@ const Dashboard: React.FC = () => {
                             <CheckCircleOutlined style={{ color: "#1c5cff" }} />
                         }
                         title={item.skill}
-                        description={`Progress: ${item.progress}% (Click to learn)`}
+                        description={item.progress > 0 ? `Assessment Score: ${item.progress}%` : "Not assessed yet (Click to view resources)"}
                         />
                     </List.Item>
                     )}
@@ -584,6 +594,32 @@ const Dashboard: React.FC = () => {
                 </Card>
                 </Col>
             </Row>
+
+            {/* Assessment Score Card */}
+            {skillTestResult && (
+                <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+                    <Col span={24}>
+                        <Card title="Latest Skill Assessment Result">
+                            <Space align="center" size="large">
+                                <Progress 
+                                    type="circle" 
+                                    percent={skillTestResult.score} 
+                                    status={skillTestResult.passed ? "success" : "exception"} 
+                                    width={80}
+                                />
+                                <div>
+                                    <Title level={4}>{skillTestResult.courseName}</Title>
+                                    <Text type={skillTestResult.passed ? "success" : "danger"}>
+                                        {skillTestResult.passed ? "PASSED" : "FAILED"} — Scored {skillTestResult.score}/100
+                                    </Text>
+                                    <br/>
+                                    <Text type="secondary">Completed on: {skillTestResult.date}</Text>
+                                </div>
+                            </Space>
+                        </Card>
+                    </Col>
+                </Row>
+            )}
 
             {/* Quick Actions */}
             <Row gutter={[16, 16]}>
