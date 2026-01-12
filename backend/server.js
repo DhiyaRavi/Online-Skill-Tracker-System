@@ -39,7 +39,103 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 app.use("/uploads", express.static("uploads"));
 
-// AI Routes
+
+
+// ... (existing imports)
+
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Helper to load course data
+let courseData = [];
+try {
+    const csvPath = path.join(__dirname, 'skill_course_dataset_230.csv');
+    if (fs.existsSync(csvPath)) {
+        const data = fs.readFileSync(csvPath, 'utf8');
+        const lines = data.split('\n');
+        const headers = lines[0].split(',').map(h => h.trim());
+        
+        for(let i=1; i<lines.length; i++) {
+            if(!lines[i] || !lines[i].trim()) continue;
+            // Handle potentially quoted fields or simpler split
+            const row = lines[i].split(',').map(c => c.trim());
+            const obj = {};
+            // Safe assignment
+            headers.forEach((h, idx) => {
+                if(row[idx] !== undefined) obj[h] = row[idx];
+            });
+            
+            if (obj.course_title) {
+                courseData.push({
+                    course_title: obj.course_title,
+                    level: obj.level,
+                    skills: [obj.skill_1, obj.skill_2, obj.skill_3].filter(Boolean),
+                    test_required: obj.test_required
+                });
+            }
+        }
+        console.log(`Loaded ${courseData.length} courses from CSV`);
+    } else {
+        console.warn("CSV file not found at:", csvPath);
+    }
+} catch (err) {
+    console.error("Failed to load generic course CSV:", err.message);
+}
+
+// ... (existing endpoints)
+
+app.post("/api/ai/recommend-course", (req, res) => {
+    const { skills, level } = req.body;
+    if (!skills || skills.length === 0) return res.status(400).json({ message: "Skills required" });
+
+    // Filter by Level first (if provided)
+    let candidates = courseData;
+    if (level) {
+        candidates = candidates.filter(c => c.level.toLowerCase() === level.toLowerCase());
+    }
+
+    // Find best match by skill overlap
+    let bestMatch = null;
+    let maxOverlap = 0;
+
+    candidates.forEach(course => {
+        const courseSkills = course.skills;
+        const overlap = courseSkills.filter(s => skills.includes(s)).length;
+        
+        if (overlap > maxOverlap) {
+            maxOverlap = overlap;
+            bestMatch = course;
+        }
+    });
+
+    // If no match with level, try without level constraint (fallback)
+    if (!bestMatch && level) {
+        candidates = courseData; // Reset candidates
+        candidates.forEach(course => {
+             const courseSkills = course.skills;
+            const overlap = courseSkills.filter(s => skills.includes(s)).length;
+            if (overlap > maxOverlap) {
+                maxOverlap = overlap;
+                bestMatch = course;
+            }
+        });
+    }
+
+    // Construct a User-Centric Match
+    // even if we found a CSV match, the user wants the UI/Test to reflect THEIR selection.
+    
+    const finalMatch = {
+        course_title: `${skills.join(" + ")} Professional Course`,
+        level: level || (bestMatch ? bestMatch.level : "Beginner"),
+        skills: skills,
+        test_required: bestMatch ? bestMatch.test_required : "Yes"
+    };
+
+    res.json({ match: finalMatch });
+});
+
 app.post("/api/ai/ask", async (req, res) => {
   try {
     const { message, videoTitle } = req.body;
@@ -425,12 +521,16 @@ app.post("/api/ai/generate-quiz", async (req, res) => {
 
 app.post("/api/ai/generate-final-exam", async (req, res) => {
   try {
-    const { videoTitle } = req.body;
+    const { videoTitle, level } = req.body;
     // videoTitle here represents the Course Name / Playlist Title
     
+    // Default to Medium if no level provided
+    const difficulty = level || "Medium";
+
     const prompt = `
       Create a Final Certification Exam for the course: "${videoTitle}".
-      Generate 10 Medium-to-Hard difficulty multiple-choice questions.
+      Generate 10 ${difficulty} difficulty multiple-choice questions.
+      The questions should be appropriate for a ${difficulty} level learner.
       
       Return JSON:
       {
@@ -438,8 +538,8 @@ app.post("/api/ai/generate-final-exam", async (req, res) => {
           {
              "id": 1,
              "question": "Question text...",
-             "options": ["A", "B", "C", "D"],
-             "correctAnswer": "A"
+             "options": ["Option A Text", "Option B Text", "Option C Text", "Option D Text"],
+             "correctAnswer": "The exact text string from the options array that is correct"
           }
         ]
       }
@@ -1408,15 +1508,61 @@ app.post("/api/user/skills", async (req, res) => {
     try {
       const decoded= jwt.verify(token, JWT_SECRET);
       const userId = decoded.id;
-      await pool.query("DELETE FROM user_skills WHERE user_id=$1", [userId]);
-      for (const skill of skills) {
+
+      // 1. Fetch existing skills
+      const existingRes = await pool.query("SELECT skill FROM user_skills WHERE user_id=$1", [userId]);
+      const existingSkills = existingRes.rows.map(r => r.skill);
+
+      // 2. Identify skills to add and remove
+      const toAdd = skills.filter(s => !existingSkills.includes(s));
+      const toRemove = existingSkills.filter(s => !skills.includes(s));
+
+      // 3. Remove deselected skills
+      if (toRemove.length > 0) {
+          // Use ANY for array handling in Postgres
+          await pool.query("DELETE FROM user_skills WHERE user_id=$1 AND skill = ANY($2::text[])", [userId, toRemove]);
+      }
+
+      // 4. Add new skills
+      for (const skill of toAdd) {
         await pool.query(
           "INSERT INTO user_skills (user_id, skill, progress, created_at) VALUES ($1, $2, $3, NOW())",
           [userId, skill, 0]
         );
       }
-      res.json({ message: "Skills saved" });
-    } catch (err) { res.status(500).json({ message: "Error" }); }
+
+      res.json({ message: "Skills updated successfully" });
+    } catch (err) { 
+        console.error("Skill Sync Error:", err);
+        res.status(500).json({ message: "Error updating skills" }); 
+    }
+});
+
+app.post("/api/user/skills/score", async (req, res) => {
+    const { skills, score } = req.body; // Expecting skills array and score
+    const token = req.headers.authorization?.split(" ")[1];
+    if (!token) return res.status(401).json({ message: "Unauthorized" });
+    
+    if (!skills || typeof score !== 'number') {
+        return res.status(400).json({ message: "Missing skills or score" });
+    }
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.id;
+
+        // Update progress/score for the matched specific skills
+        // We use the score as 'progress' here as per user request to display marks in dashboard
+        await pool.query(
+            "UPDATE user_skills SET progress=$1 WHERE user_id=$2 AND skill = ANY($3::text[])",
+            [score, userId, skills]
+        );
+
+        res.json({ message: "Assessment score saved" });
+    } catch (err) {
+        console.error("Score Save Error:", err);
+        res.status(500).json({ message: "Error saving score" });
+    }
 });
 
 app.get("/api/user/skills", async (req, res) => {

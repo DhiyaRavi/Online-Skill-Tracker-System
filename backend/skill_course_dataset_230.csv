@@ -1,0 +1,231 @@
+course_id,skill_1,skill_2,skill_3,course_title,level,test_required
+1,Cyber Security,Networking,Operating Systems,Cyber Security + Networking + Operating Systems Professional Course,Advanced,Yes
+2,Java,C,UI/UX,Java + C + UI/UX Professional Course,Beginner,Yes
+3,JavaScript,Express,Machine Learning,JavaScript + Express + Machine Learning Professional Course,Intermediate,Yes
+4,HTML,CSS,React,HTML + CSS + React Professional Course,Beginner,Yes
+5,Java,Git,Cloud Basics,Java + Git + Cloud Basics Professional Course,Advanced,No
+6,CSS,TypeScript,DSA,CSS + TypeScript + DSA Professional Course,Intermediate,No
+7,HTML,MongoDB,Java,HTML + MongoDB + Java Professional Course,Beginner,Yes
+8,Git,Machine Learning,Operating Systems,Git + Machine Learning + Operating Systems Professional Course,Intermediate,Yes
+9,Node.js,SQL,Figma,Node.js + SQL + Figma Professional Course,Advanced,Yes
+10,HTML,CSS,Java,HTML + CSS + Java Professional Course,Advanced,Yes
+11,CSS,TypeScript,Java,CSS + TypeScript + Java Professional Course,Advanced,Yes
+12,Express,C,Cloud Basics,Express + C + Cloud Basics Professional Course,Advanced,No
+13,DSA,Git,Cloud Basics,DSA + Git + Cloud Basics Professional Course,Beginner,Yes
+14,MongoDB,Java,UI/UX,MongoDB + Java + UI/UX Professional Course,Beginner,No
+15,JavaScript,C,C++,JavaScript + C + C++ Professional Course,Advanced,Yes
+16,Node.js,Python,Cloud Basics,Node.js + Python + Cloud Basics Professional Course,Advanced,Yes
+17,Cloud Basics,Cyber Security,Networking,Cloud Basics + Cyber Security + Networking Professional Course,Beginner,Yes
+18,HTML,JavaScript,Operating Systems,HTML + JavaScript + Operating Systems Professional Course,Advanced,Yes
+19,TypeScript,Express,Machine Learning,TypeScript + Express + Machine Learning Professional Course,Beginner,Yes
+20,MongoDB,SQL,Operating Systems,MongoDB + SQL + Operating Systems Professional Course,Advanced,No
+21,Node.js,SQL,Operating Systems,Node.js + SQL + Operating Systems Professional Course,Advanced,Yes
+22,React,Networking,Figma,React + Networking + Figma Professional Course,Intermediate,No
+23,Git,Cyber Security,Operating Systems,Git + Cyber Security + Operating Systems Professional Course,Beginner,Yes
+24,HTML,Cyber Security,Figma,HTML + Cyber Security + Figma Professional Course,Beginner,No
+25,JavaScript,TypeScript,SQL,JavaScript + TypeScript + SQL Professional Course,Intermediate,No
+26,SQL,Python,Machine Learning,SQL + Python + Machine Learning Professional Course,Beginner,Yes
+27,CSS,Node.js,DSA,CSS + Node.js + DSA Professional Course,Beginner,No
+28,HTML,Git,Operating Systems,HTML + Git + Operating Systems Professional Course,Beginner,Yes
+29,DSA,Git,Cyber Security,DSA + Git + Cyber Security Professional Course,Intermediate,No
+30,TypeScript,Express,DSA,TypeScript + Express + DSA Professional Course,Beginner,Yes
+31,HTML,JavaScript,Figma,HTML + JavaScript + Figma Professional Course,Beginner,Yes
+32,CSS,Java,C++,CSS + Java + C++ Professional Course,Advanced,Yes
+33,CSS,MongoDB,Machine Learning,CSS + MongoDB + Machine Learning Professional Course,Beginner,Yes
+34,CSS,Machine Learning,Operating Systems,CSS + Machine Learning + Operating Systems Professional Course,Intermediate,Yes
+35,React,C++,Figma,React + C++ + Figma Professional Course,Intermediate,Yes
+36,HTML,Node.js,Cloud Basics,HTML + Node.js + Cloud Basics Professional Course,Intermediate,Yes
+37,Express,C,Machine Learning,Express + C + Machine Learning Professional Course,Advanced,Yes
+38,Express,SQL,Cloud Basics,Express + SQL + Cloud Basics Professional Course,Beginner,No
+39,SQL,DSA,Networking,SQL + DSA + Networking Professional Course,Beginner,Yes
+40,HTML,C,C++,HTML + C + C++ Professional Course,Intermediate,Yes
+41,CSS,C++,Networking,CSS + C++ + Networking Professional Course,Advanced,No
+42,Git,Machine Learning,Figma,Git + Machine Learning + Figma Professional Course,Beginner,Yes
+43,Node.js,Express,Figma,Node.js + Express + Figma Professional Course,Beginner,No
+44,Node.js,DSA,Operating Systems,Node.js + DSA + Operating Systems Professional Course,Advanced,Yes
+45,HTML,Express,C,HTML + Express + C Professional Course,Intermediate,Yes
+46,HTML,JavaScript,TypeScript,HTML + JavaScript + TypeScript Professional Course,Intermediate,Yes
+47,Node.js,Express,SQL,Node.js + Express + SQL Professional Course,Advanced,No
+48,C++,UI/UX,Networking,C++ + UI/UX + Networking Professional Course,Advanced,No
+49,DSA,Networking,Operating Systems,DSA + Networking + Operating Systems Professional Course,Advanced,No
+50,Node.js,Python,C,Node.js + Python + C Professional Course,Beginner,Yes
+51,C++,Git,Networking,C++ + Git + Networking Professional Course,Advanced,No
+52,Express,MongoDB,UI/UX,Express + MongoDB + UI/UX Professional Course,Intermediate,No
+53,CSS,SQL,UI/UX,CSS + SQL + UI/UX Professional Course,Intermediate,No
+54,HTML,SQL,Git,HTML + SQL + Git Professional Course,Advanced,Yes
+55,React,SQL,Cloud Basics,React + SQL + Cloud Basics Professional Course,Intermediate,Yes
+56,HTML,Cloud Basics,Operating Systems,HTML + Cloud Basics + Operating Systems Professional Course,Beginner,No
+57,Express,C++,DSA,Express + C++ + DSA Professional Course,Advanced,Yes
+58,Java,Cloud Basics,Figma,Java + Cloud Basics + Figma Professional Course,Advanced,No
+59,React,DSA,Operating Systems,React + DSA + Operating Systems Professional Course,Intermediate,No
+60,HTML,CSS,Cyber Security,HTML + CSS + Cyber Security Professional Course,Intermediate,Yes
+61,Express,Java,Machine Learning,Express + Java + Machine Learning Professional Course,Intermediate,No
+62,JavaScript,Cyber Security,Figma,JavaScript + Cyber Security + Figma Professional Course,Beginner,No
+63,HTML,JavaScript,Java,HTML + JavaScript + Java Professional Course,Advanced,Yes
+64,MongoDB,UI/UX,Networking,MongoDB + UI/UX + Networking Professional Course,Intermediate,No
+65,CSS,Express,Machine Learning,CSS + Express + Machine Learning Professional Course,Intermediate,No
+66,Python,Cyber Security,Operating Systems,Python + Cyber Security + Operating Systems Professional Course,Beginner,Yes
+67,React,Operating Systems,Figma,React + Operating Systems + Figma Professional Course,Advanced,No
+68,TypeScript,UI/UX,Cyber Security,TypeScript + UI/UX + Cyber Security Professional Course,Intermediate,Yes
+69,Node.js,UI/UX,Cloud Basics,Node.js + UI/UX + Cloud Basics Professional Course,Beginner,Yes
+70,CSS,Node.js,Cyber Security,CSS + Node.js + Cyber Security Professional Course,Advanced,Yes
+71,React,UI/UX,Operating Systems,React + UI/UX + Operating Systems Professional Course,Beginner,Yes
+72,SQL,UI/UX,Cyber Security,SQL + UI/UX + Cyber Security Professional Course,Advanced,No
+73,HTML,React,Node.js,HTML + React + Node.js Professional Course,Intermediate,Yes
+74,TypeScript,React,Java,TypeScript + React + Java Professional Course,Intermediate,No
+75,Express,MongoDB,DSA,Express + MongoDB + DSA Professional Course,Intermediate,No
+76,JavaScript,Node.js,MongoDB,JavaScript + Node.js + MongoDB Professional Course,Beginner,No
+77,React,SQL,Figma,React + SQL + Figma Professional Course,Beginner,Yes
+78,C,C++,Networking,C + C++ + Networking Professional Course,Beginner,No
+79,CSS,SQL,Java,CSS + SQL + Java Professional Course,Intermediate,No
+80,HTML,TypeScript,C,HTML + TypeScript + C Professional Course,Advanced,No
+81,MongoDB,SQL,C++,MongoDB + SQL + C++ Professional Course,Beginner,Yes
+82,SQL,Cloud Basics,Operating Systems,SQL + Cloud Basics + Operating Systems Professional Course,Advanced,Yes
+83,MongoDB,DSA,Operating Systems,MongoDB + DSA + Operating Systems Professional Course,Beginner,Yes
+84,SQL,Java,Figma,SQL + Java + Figma Professional Course,Beginner,No
+85,SQL,Git,UI/UX,SQL + Git + UI/UX Professional Course,Intermediate,Yes
+86,Machine Learning,Cloud Basics,Networking,Machine Learning + Cloud Basics + Networking Professional Course,Intermediate,No
+87,Node.js,Python,C++,Node.js + Python + C++ Professional Course,Intermediate,No
+88,UI/UX,Cyber Security,Networking,UI/UX + Cyber Security + Networking Professional Course,Intermediate,Yes
+89,Node.js,Express,C++,Node.js + Express + C++ Professional Course,Intermediate,Yes
+90,HTML,TypeScript,Node.js,HTML + TypeScript + Node.js Professional Course,Beginner,No
+91,SQL,C++,Networking,SQL + C++ + Networking Professional Course,Intermediate,No
+92,Express,DSA,Cloud Basics,Express + DSA + Cloud Basics Professional Course,Beginner,Yes
+93,JavaScript,Python,C,JavaScript + Python + C Professional Course,Advanced,Yes
+94,React,Python,Cloud Basics,React + Python + Cloud Basics Professional Course,Advanced,No
+95,React,Python,Networking,React + Python + Networking Professional Course,Beginner,Yes
+96,Express,Machine Learning,Figma,Express + Machine Learning + Figma Professional Course,Advanced,Yes
+97,Node.js,SQL,UI/UX,Node.js + SQL + UI/UX Professional Course,Advanced,No
+98,Git,Cloud Basics,Figma,Git + Cloud Basics + Figma Professional Course,Advanced,No
+99,TypeScript,React,Machine Learning,TypeScript + React + Machine Learning Professional Course,Beginner,No
+100,React,Python,C++,React + Python + C++ Professional Course,Intermediate,Yes
+101,TypeScript,C,Cloud Basics,TypeScript + C + Cloud Basics Professional Course,Advanced,No
+102,CSS,Python,DSA,CSS + Python + DSA Professional Course,Advanced,Yes
+103,C,UI/UX,Networking,C + UI/UX + Networking Professional Course,Beginner,No
+104,TypeScript,Node.js,Machine Learning,TypeScript + Node.js + Machine Learning Professional Course,Beginner,No
+105,UI/UX,Machine Learning,Figma,UI/UX + Machine Learning + Figma Professional Course,Intermediate,No
+106,CSS,Express,Operating Systems,CSS + Express + Operating Systems Professional Course,Beginner,No
+107,Python,DSA,Operating Systems,Python + DSA + Operating Systems Professional Course,Intermediate,No
+108,Node.js,Java,Cyber Security,Node.js + Java + Cyber Security Professional Course,Advanced,No
+109,TypeScript,MongoDB,Machine Learning,TypeScript + MongoDB + Machine Learning Professional Course,Beginner,No
+110,C++,Cloud Basics,Figma,C++ + Cloud Basics + Figma Professional Course,Intermediate,No
+111,Node.js,Java,Git,Node.js + Java + Git Professional Course,Beginner,No
+112,Python,UI/UX,Machine Learning,Python + UI/UX + Machine Learning Professional Course,Advanced,Yes
+113,C++,Cloud Basics,Operating Systems,C++ + Cloud Basics + Operating Systems Professional Course,Advanced,No
+114,Java,DSA,Cyber Security,Java + DSA + Cyber Security Professional Course,Intermediate,No
+115,DSA,UI/UX,Figma,DSA + UI/UX + Figma Professional Course,Beginner,No
+116,TypeScript,Java,C,TypeScript + Java + C Professional Course,Intermediate,Yes
+117,C++,Machine Learning,Cloud Basics,C++ + Machine Learning + Cloud Basics Professional Course,Intermediate,No
+118,JavaScript,C,Figma,JavaScript + C + Figma Professional Course,Intermediate,Yes
+119,JavaScript,Node.js,Networking,JavaScript + Node.js + Networking Professional Course,Advanced,No
+120,React,Python,C,React + Python + C Professional Course,Beginner,Yes
+121,TypeScript,Express,Networking,TypeScript + Express + Networking Professional Course,Advanced,No
+122,C++,DSA,Git,C++ + DSA + Git Professional Course,Beginner,No
+123,React,Node.js,Express,React + Node.js + Express Professional Course,Intermediate,Yes
+124,TypeScript,Express,Cyber Security,TypeScript + Express + Cyber Security Professional Course,Intermediate,No
+125,TypeScript,Git,Cloud Basics,TypeScript + Git + Cloud Basics Professional Course,Beginner,Yes
+126,JavaScript,Git,Cyber Security,JavaScript + Git + Cyber Security Professional Course,Intermediate,Yes
+127,JavaScript,Python,Git,JavaScript + Python + Git Professional Course,Beginner,Yes
+128,HTML,C++,Machine Learning,HTML + C++ + Machine Learning Professional Course,Advanced,Yes
+129,Node.js,Python,Operating Systems,Node.js + Python + Operating Systems Professional Course,Intermediate,No
+130,CSS,SQL,Operating Systems,CSS + SQL + Operating Systems Professional Course,Advanced,Yes
+131,JavaScript,Node.js,DSA,JavaScript + Node.js + DSA Professional Course,Intermediate,Yes
+132,DSA,UI/UX,Operating Systems,DSA + UI/UX + Operating Systems Professional Course,Beginner,Yes
+133,Express,Python,C++,Express + Python + C++ Professional Course,Intermediate,No
+134,Java,UI/UX,Cloud Basics,Java + UI/UX + Cloud Basics Professional Course,Advanced,No
+135,HTML,Operating Systems,Figma,HTML + Operating Systems + Figma Professional Course,Advanced,Yes
+136,Networking,Operating Systems,Figma,Networking + Operating Systems + Figma Professional Course,Beginner,Yes
+137,DSA,Machine Learning,Networking,DSA + Machine Learning + Networking Professional Course,Advanced,No
+138,Git,Machine Learning,Cyber Security,Git + Machine Learning + Cyber Security Professional Course,Advanced,No
+139,HTML,C++,UI/UX,HTML + C++ + UI/UX Professional Course,Advanced,Yes
+140,JavaScript,Express,UI/UX,JavaScript + Express + UI/UX Professional Course,Beginner,No
+141,React,MongoDB,Operating Systems,React + MongoDB + Operating Systems Professional Course,Intermediate,Yes
+142,Node.js,MongoDB,SQL,Node.js + MongoDB + SQL Professional Course,Beginner,Yes
+143,CSS,DSA,UI/UX,CSS + DSA + UI/UX Professional Course,Intermediate,No
+144,Java,Git,Figma,Java + Git + Figma Professional Course,Advanced,No
+145,SQL,Python,Cyber Security,SQL + Python + Cyber Security Professional Course,Beginner,No
+146,HTML,C++,Operating Systems,HTML + C++ + Operating Systems Professional Course,Advanced,No
+147,CSS,Java,Networking,CSS + Java + Networking Professional Course,Beginner,No
+148,CSS,Express,UI/UX,CSS + Express + UI/UX Professional Course,Intermediate,Yes
+149,Python,C++,Networking,Python + C++ + Networking Professional Course,Beginner,Yes
+150,HTML,Git,UI/UX,HTML + Git + UI/UX Professional Course,Advanced,Yes
+151,Machine Learning,Networking,Operating Systems,Machine Learning + Networking + Operating Systems Professional Course,Advanced,No
+152,MongoDB,C++,Operating Systems,MongoDB + C++ + Operating Systems Professional Course,Intermediate,Yes
+153,TypeScript,C++,DSA,TypeScript + C++ + DSA Professional Course,Advanced,Yes
+154,Java,C,Figma,Java + C + Figma Professional Course,Beginner,No
+155,MongoDB,SQL,Cloud Basics,MongoDB + SQL + Cloud Basics Professional Course,Beginner,Yes
+156,JavaScript,C,Operating Systems,JavaScript + C + Operating Systems Professional Course,Beginner,Yes
+157,React,Node.js,DSA,React + Node.js + DSA Professional Course,Advanced,No
+158,HTML,JavaScript,C++,HTML + JavaScript + C++ Professional Course,Intermediate,Yes
+159,CSS,C,UI/UX,CSS + C + UI/UX Professional Course,Beginner,No
+160,HTML,Node.js,C,HTML + Node.js + C Professional Course,Beginner,No
+161,Node.js,C,Cloud Basics,Node.js + C + Cloud Basics Professional Course,Beginner,No
+162,TypeScript,React,MongoDB,TypeScript + React + MongoDB Professional Course,Beginner,No
+163,MongoDB,C++,Git,MongoDB + C++ + Git Professional Course,Beginner,Yes
+164,JavaScript,Express,Operating Systems,JavaScript + Express + Operating Systems Professional Course,Intermediate,Yes
+165,HTML,Machine Learning,Networking,HTML + Machine Learning + Networking Professional Course,Advanced,No
+166,SQL,Java,Operating Systems,SQL + Java + Operating Systems Professional Course,Beginner,No
+167,React,DSA,Cloud Basics,React + DSA + Cloud Basics Professional Course,Beginner,Yes
+168,TypeScript,Machine Learning,Operating Systems,TypeScript + Machine Learning + Operating Systems Professional Course,Advanced,Yes
+169,TypeScript,React,SQL,TypeScript + React + SQL Professional Course,Intermediate,No
+170,JavaScript,Git,Cloud Basics,JavaScript + Git + Cloud Basics Professional Course,Beginner,Yes
+171,Node.js,UI/UX,Figma,Node.js + UI/UX + Figma Professional Course,Beginner,Yes
+172,TypeScript,Java,Cyber Security,TypeScript + Java + Cyber Security Professional Course,Beginner,No
+173,React,Git,Operating Systems,React + Git + Operating Systems Professional Course,Advanced,Yes
+174,HTML,TypeScript,SQL,HTML + TypeScript + SQL Professional Course,Intermediate,No
+175,React,DSA,UI/UX,React + DSA + UI/UX Professional Course,Intermediate,Yes
+176,MongoDB,Machine Learning,Figma,MongoDB + Machine Learning + Figma Professional Course,Beginner,Yes
+177,JavaScript,TypeScript,Operating Systems,JavaScript + TypeScript + Operating Systems Professional Course,Beginner,No
+178,Express,DSA,Networking,Express + DSA + Networking Professional Course,Beginner,No
+179,SQL,C++,Figma,SQL + C++ + Figma Professional Course,Intermediate,No
+180,Express,Git,Cyber Security,Express + Git + Cyber Security Professional Course,Intermediate,No
+181,SQL,Networking,Figma,SQL + Networking + Figma Professional Course,Advanced,No
+182,C,Cloud Basics,Cyber Security,C + Cloud Basics + Cyber Security Professional Course,Intermediate,No
+183,Node.js,Express,C,Node.js + Express + C Professional Course,Beginner,Yes
+184,JavaScript,TypeScript,Figma,JavaScript + TypeScript + Figma Professional Course,Advanced,No
+185,React,MongoDB,C++,React + MongoDB + C++ Professional Course,Advanced,No
+186,C,UI/UX,Cloud Basics,C + UI/UX + Cloud Basics Professional Course,Advanced,No
+187,HTML,CSS,DSA,HTML + CSS + DSA Professional Course,Intermediate,No
+188,Node.js,C,Networking,Node.js + C + Networking Professional Course,Beginner,Yes
+189,Java,Machine Learning,Cyber Security,Java + Machine Learning + Cyber Security Professional Course,Beginner,No
+190,Node.js,Machine Learning,Figma,Node.js + Machine Learning + Figma Professional Course,Beginner,Yes
+191,JavaScript,MongoDB,SQL,JavaScript + MongoDB + SQL Professional Course,Advanced,Yes
+192,CSS,Node.js,Cloud Basics,CSS + Node.js + Cloud Basics Professional Course,Advanced,Yes
+193,JavaScript,Python,Cloud Basics,JavaScript + Python + Cloud Basics Professional Course,Beginner,Yes
+194,React,Java,Figma,React + Java + Figma Professional Course,Beginner,No
+195,CSS,Express,Git,CSS + Express + Git Professional Course,Advanced,Yes
+196,Node.js,Cloud Basics,Figma,Node.js + Cloud Basics + Figma Professional Course,Advanced,No
+197,Java,Machine Learning,Figma,Java + Machine Learning + Figma Professional Course,Intermediate,No
+198,JavaScript,C++,Operating Systems,JavaScript + C++ + Operating Systems Professional Course,Intermediate,Yes
+199,Machine Learning,Cloud Basics,Cyber Security,Machine Learning + Cloud Basics + Cyber Security Professional Course,Beginner,No
+200,HTML,JavaScript,Cyber Security,HTML + JavaScript + Cyber Security Professional Course,Advanced,Yes
+201,React,C++,Cyber Security,React + C++ + Cyber Security Professional Course,Beginner,No
+202,JavaScript,React,Figma,JavaScript + React + Figma Professional Course,Intermediate,No
+203,MongoDB,Python,Operating Systems,MongoDB + Python + Operating Systems Professional Course,Advanced,No
+204,TypeScript,MongoDB,Networking,TypeScript + MongoDB + Networking Professional Course,Intermediate,No
+205,C++,DSA,Figma,C++ + DSA + Figma Professional Course,Intermediate,Yes
+206,HTML,Node.js,MongoDB,HTML + Node.js + MongoDB Professional Course,Intermediate,No
+207,CSS,Python,Figma,CSS + Python + Figma Professional Course,Beginner,No
+208,HTML,Node.js,Operating Systems,HTML + Node.js + Operating Systems Professional Course,Advanced,No
+209,C++,Git,UI/UX,C++ + Git + UI/UX Professional Course,Intermediate,Yes
+210,React,Java,Machine Learning,React + Java + Machine Learning Professional Course,Beginner,No
+211,HTML,MongoDB,Cyber Security,HTML + MongoDB + Cyber Security Professional Course,Beginner,No
+212,Java,C,Machine Learning,Java + C + Machine Learning Professional Course,Advanced,No
+213,JavaScript,Python,Java,JavaScript + Python + Java Professional Course,Beginner,No
+214,CSS,Git,Machine Learning,CSS + Git + Machine Learning Professional Course,Beginner,No
+215,HTML,Cloud Basics,Cyber Security,HTML + Cloud Basics + Cyber Security Professional Course,Advanced,No
+216,HTML,C,Cloud Basics,HTML + C + Cloud Basics Professional Course,Advanced,Yes
+217,HTML,Java,Git,HTML + Java + Git Professional Course,Beginner,Yes
+218,CSS,Machine Learning,Cloud Basics,CSS + Machine Learning + Cloud Basics Professional Course,Beginner,No
+219,React,Cyber Security,Operating Systems,React + Cyber Security + Operating Systems Professional Course,Advanced,No
+220,React,Cloud Basics,Operating Systems,React + Cloud Basics + Operating Systems Professional Course,Beginner,Yes
+221,TypeScript,Node.js,Figma,TypeScript + Node.js + Figma Professional Course,Intermediate,No
+222,HTML,SQL,Cloud Basics,HTML + SQL + Cloud Basics Professional Course,Intermediate,Yes
+223,HTML,React,Java,HTML + React + Java Professional Course,Beginner,Yes
+224,CSS,Express,SQL,CSS + Express + SQL Professional Course,Beginner,No
+225,Python,UI/UX,Networking,Python + UI/UX + Networking Professional Course,Advanced,No
+226,JavaScript,Java,Git,JavaScript + Java + Git Professional Course,Intermediate,No
+227,Node.js,MongoDB,Python,Node.js + MongoDB + Python Professional Course,Advanced,Yes
+228,Express,Python,Cyber Security,Express + Python + Cyber Security Professional Course,Advanced,No
+229,CSS,C++,UI/UX,CSS + C++ + UI/UX Professional Course,Beginner,No
+230,React,Cloud Basics,Figma,React + Cloud Basics + Figma Professional Course,Advanced,No
